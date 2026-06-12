@@ -13,10 +13,12 @@ commands:
   e2e: {{E2E}}                # e.g. npm run e2e | npx playwright test
   e2e_smoke: {{E2E_SMOKE}}    # fast pack, e.g. npm run e2e:smoke | npx playwright test --grep @smoke
   dev: {{DEV}}                # dev server w/ test auth, e.g. npm run start:devlogin | npm run dev
+  dev_port: {{DEV_PORT}}    # port commands.dev serves on (web: used by the Playwright webServer block)
 
 testing:
   driver: {{DRIVER}}          # maestro | playwright
   app_id: {{APP_ID}}          # maestro only: iOS bundle id
+  boot_sentinel_testid: {{BOOT_SENTINEL_TESTID}}  # testID/data-testid that only renders signed-in — flows + auth setup assert it
   flows_dir: {{FLOWS_DIR}}    # e.g. apps/mobile/.maestro/ | e2e/
   evidence_dir: {{EVIDENCE_DIR}}  # screenshot evidence output (gitignored)
   phases_complete: []         # setup resume state, subset of [1,2,3,4]
@@ -30,6 +32,7 @@ testing:
     workflow: {{CI_WORKFLOW}}        # path, e.g. .github/workflows/e2e.yml
     workflow_name: {{CI_NAME}}       # display name for `gh workflow run`
     runner: {{CI_RUNNER}}            # ubuntu-latest | [self-hosted, macOS, maestro]
+    app_paths: {{APP_PATHS}}      # YAML list of app-code globs that trigger PR e2e runs
 
 linear:
   team: {{LINEAR_TEAM}}       # team key, e.g. ACME
