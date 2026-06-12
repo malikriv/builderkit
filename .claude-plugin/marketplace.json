@@ -1,5 +1,6 @@
 {
   "name": "builderkit",
+  "description": "BuilderKit — ship-feature pipeline, 4-phase e2e testing, and Linear integration for app-studio projects.",
   "owner": { "name": "malikriv" },
   "plugins": [
     {
