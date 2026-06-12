@@ -1,0 +1,46 @@
+name: {{CI_NAME}}
+
+on:
+  pull_request:
+    paths: {{APP_PATHS}}
+  schedule:
+    - cron: "0 9 * * *"   # nightly full pack
+  workflow_dispatch:
+    inputs:
+      suite:
+        type: choice
+        options: [smoke, full]
+        default: full
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: {{CI_RUNNER}}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Run Playwright
+        env:
+          E2E_DEV_LOGIN_EMAIL: ${{ secrets.E2E_DEV_LOGIN_EMAIL }}
+          E2E_DEV_LOGIN_PASSWORD: ${{ secrets.E2E_DEV_LOGIN_PASSWORD }}
+        run: |
+          SUITE="${{ github.event.inputs.suite }}"
+          [ -z "$SUITE" ] && { [ "${{ github.event_name }}" = "pull_request" ] && SUITE=smoke || SUITE=full; }
+          case "$SUITE" in
+            smoke) npx playwright test --grep @smoke ;;
+            full)  npx playwright test ;;
+          esac
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with: { name: e2e-evidence, path: {{EVIDENCE_DIR}}, if-no-files-found: warn, retention-days: 14 }
+      - name: Upload report (failure only)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with: { name: playwright-report, path: playwright-report/, retention-days: 7 }
