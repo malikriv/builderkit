@@ -1,0 +1,45 @@
+# BuilderKit per-project config — written by /builderkit:setup, read by every
+# builderkit skill at start. Repo CLAUDE.md overrides this file where they conflict.
+config_version: 1
+
+project:
+  name: {{PROJECT_NAME}}
+  stack: {{STACK}}            # expo | web-pwa | web
+
+commands:
+  workdir: {{WORKDIR}}        # dir all commands run from ("." or e.g. apps/mobile)
+  typecheck: {{TYPECHECK}}    # e.g. npx tsc --noEmit
+  unit: {{UNIT}}              # e.g. npx jest | npx vitest run
+  e2e: {{E2E}}                # e.g. npm run e2e | npx playwright test
+  e2e_smoke: {{E2E_SMOKE}}    # fast pack, e.g. npm run e2e:smoke | npx playwright test --grep @smoke
+  dev: {{DEV}}                # dev server w/ test auth, e.g. npm run start:devlogin | npm run dev
+
+testing:
+  driver: {{DRIVER}}          # maestro | playwright
+  app_id: {{APP_ID}}          # maestro only: iOS bundle id
+  flows_dir: {{FLOWS_DIR}}    # e.g. apps/mobile/.maestro/ | e2e/
+  evidence_dir: {{EVIDENCE_DIR}}  # screenshot evidence output (gitignored)
+  phases_complete: []         # setup resume state, subset of [1,2,3,4]
+  dev_login:
+    mode: {{DEV_LOGIN_MODE}}  # env-creds (native dev client) | storage-state (web)
+    env_file: {{ENV_FILE}}    # env-creds: gitignored file holding test creds
+  seed:
+    account: {{SEED_ACCOUNT}} # seeded test account identity (or "local-fixture")
+    seed_file: {{SEED_FILE}}  # SQL/script/fixture that resets the test state
+  ci:
+    workflow: {{CI_WORKFLOW}}        # path, e.g. .github/workflows/e2e.yml
+    workflow_name: {{CI_NAME}}       # display name for `gh workflow run`
+    runner: {{CI_RUNNER}}            # ubuntu-latest | [self-hosted, macOS, maestro]
+
+linear:
+  team: {{LINEAR_TEAM}}       # team key, e.g. ACME
+  url: {{LINEAR_URL}}         # linear.app/<org>/team/<KEY>
+
+docs:
+  specs_dir: {{SPECS_DIR}}    # spec docs home, e.g. docs/specs/
+  design_dirs: []             # optional: where design references live
+
+modules:
+  delivery: true
+  testing: true
+  linear: true
