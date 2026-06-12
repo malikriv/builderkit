@@ -4,16 +4,17 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."
 FAIL=0
-err() { echo "LINT FAIL: $*"; FAIL=1; }
+err() { printf 'LINT FAIL: %b\n' "$*"; FAIL=1; }
 
 # 1. Valid JSON
+command -v python3 >/dev/null || err "python3 required for JSON validation"
 for f in .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
   [ -f "$f" ] && { python3 -m json.tool "$f" >/dev/null 2>&1 || err "$f is not valid JSON"; }
 done
 
 # 2. Portability: no project literals may leak into skills/ or commands/.
 #    (Templates use {{PLACEHOLDERS}}; skills/commands must read config instead.)
-BANNED='meetcorda|corda|simtest@|yedgztzicmwmapwxldmp|malikcasey|glowproof|GLOW-|CORDA'
+BANNED='meetcorda|corda|simtest|appletest@|yedgztzicmwmapwxldmp|malikcasey|glowproof|api-nine-xi|com\.meetcorda|\bGLOW-[0-9]'
 if [ -d skills ] || [ -d commands ]; then
   HITS=$(grep -rinE "$BANNED" skills/ commands/ 2>/dev/null || true)
   [ -n "$HITS" ] && err "project literal leaked:\n$HITS"
@@ -26,9 +27,9 @@ if [ -d skills ] || [ -d commands ]; then
 fi
 
 # 4. Frontmatter: every SKILL.md and command starts with '---'
-for f in $(find skills -name 'SKILL.md' 2>/dev/null; find commands -name '*.md' 2>/dev/null); do
+while IFS= read -r -d '' f; do
   [ "$(head -c 3 "$f")" = "---" ] || err "$f missing frontmatter"
-done
+done < <(find skills -name 'SKILL.md' -print0 2>/dev/null; find commands -name '*.md' -print0 2>/dev/null)
 
 # 5. Full manifest (only with --complete)
 if [ "${1:-}" = "--complete" ]; then
