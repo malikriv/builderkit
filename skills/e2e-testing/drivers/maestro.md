@@ -1,7 +1,7 @@
 # Maestro E2E flows
 
 End-to-end flows that drive the iOS simulator against a **real signed-in session**
-(dev-login, phase 1 of the BuilderKit testing system), so authed behavior — the bug class the stub bypass
+(the dev-login mode — phase 1 of the BuilderKit testing system), so authed behavior — the bug class the stub bypass
 can't reach (401s on every authed call) — is actually exercised.
 
 ## One-time setup
@@ -26,9 +26,11 @@ can't reach (401s on every authed call) — is actually exercised.
 
 ## Running
 
-In one terminal (keep it running — it bakes the dev-login flag + creds into the bundle): run `commands.dev` from `commands.workdir`.
+Every flow YAML declares `appId: <testing.app_id>` at the top — the iOS bundle id from config.
+
+In one terminal, run `commands.dev` from `commands.workdir` and keep it running — it bakes the dev-login flag + creds into the bundle.
 The Expo **dev client** must already be installed on the booted simulator
-(build + install the dev client once if not). Then in another terminal:
+(one-time manual prerequisite: build + install the Expo dev client with the dev-login env baked in — e.g. `expo run:ios` wired to the same env as `commands.dev`; native config changes require this rebuild). Then in another terminal:
 `maestro test <testing.flows_dir>` for the whole suite, a single flow path for one flow, or the project's `commands.e2e` / `commands.e2e_smoke`.
 
 Flows `takeScreenshot` named evidence per requirement into `testing.evidence_dir`
@@ -46,17 +48,16 @@ Keep a flows table in `<testing.flows_dir>/README.md` per project: flow, tags, w
 
 `testing.ci.workflow` runs on the **self-hosted Mac runner**
 (labels `testing.ci.runner`; register the runner as a LaunchAgent so it survives
-reboots while the user is logged in). This replaced the deferred hosted-runner
-approach: the self-hosted Mac sidesteps the native-build/signing problem
-entirely by reusing the installed dev client + a Metro started from the CI
-checkout (JS-only coverage; rebuild the client manually after native changes).
+reboots while the user is logged in). The self-hosted Mac reuses the installed
+dev client + a Metro started from the CI checkout (JS-only coverage; rebuild
+the client manually after native changes).
 
 - **Triggers**: PRs touching app paths run the smoke pack; nightly cron +
   `workflow_dispatch` (suite input) run the full pack. One run at a time
   (shared simulator, queued).
 - **Guards**: fails fast if port 8081 is owned by an interactive Metro, or if
-  the dev client isn't installed on the sim.
-- **Secrets**: `E2E_DEV_LOGIN_EMAIL` / `E2E_DEV_LOGIN_PASSWORD`.
+  `testing.app_id` is not installed on the sim.
+- **Secrets**: `E2E_DEV_LOGIN_EMAIL` / `E2E_DEV_LOGIN_PASSWORD` — CI writes them into `testing.dev_login.env_file` as the `EXPO_PUBLIC_DEV_LOGIN_*` vars at build time.
 - **Artifacts**: `testing.evidence_dir` evidence PNGs + Maestro debug output
   upload as the evidence artifact (14-day retention).
 - Flows that WRITE to the seeded account are fine for a single-runner queue,
