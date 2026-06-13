@@ -39,6 +39,13 @@ if [ "${1:-}" = "--complete" ]; then
     commands/setup.md commands/ship.md commands/linear-issue.md commands/e2e.md \
     skills/studio-setup/SKILL.md skills/ship-feature/SKILL.md skills/linear/SKILL.md \
     skills/e2e-testing/SKILL.md skills/e2e-testing/drivers/maestro.md skills/e2e-testing/drivers/playwright.md \
+    commands/discover.md \
+    skills/discover/SKILL.md \
+    skills/discover/references/red-team-personas.md \
+    skills/discover/references/demand-intensity-rubric.md \
+    skills/discover/references/reality-probe.md \
+    templates/discover/hypothesis-brief.md \
+    templates/studio/playbook.md templates/studio/validation-log.md \
     templates/maestro/boot.yaml templates/maestro/smoke.yaml templates/maestro/ci-workflow.yml \
     templates/playwright/auth.setup.ts templates/playwright/evidence.ts templates/playwright/smoke.spec.ts templates/playwright/ci-workflow.yml templates/playwright/playwright.config.template.ts; do
     [ -f "$f" ] || err "missing required file: $f"

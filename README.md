@@ -27,11 +27,21 @@ To pin BuilderKit for a whole team, add it to the project's `.claude/settings.js
 1. Run `/builderkit:setup` once per project. It detects your stack, confirms the generated config, and walks the 4 testing phases one at a time — each scaffolded from plugin templates and verified live before moving on.
 2. From then on, run `/builderkit:ship <request>` for delivery work — feature, bug fix, design correction, or user feedback.
 
+## The product chain (discover → validate → ship)
+
+BuilderKit now starts *before* the build. `/builderkit:discover` hardens a raw seed
+into a validated hypothesis (symmetric need assessment, an evidence-bound red-team
+panel, a cheap human reality probe, Gate D). `/builderkit:validate` (next module)
+runs a 48-hour guerrilla GTM sprint and gates on real cold-stranger willingness to
+pay before `/builderkit:ship` builds it. A cross-product studio playbook
+(`.builderkit/studio/`) accumulates priors so each new product starts smarter.
+
 ## Commands
 
 | Command | What it does |
 | --- | --- |
 | `/builderkit:setup` | Phased onboarding: detect stack, write `.builderkit/config.yaml`, walk the 4 e2e testing phases. |
+| `/builderkit:discover <seed>` | Take a problem/idea/population to a red-team-hardened, reality-probed Hypothesis Brief (Gate D). Feeds `/builderkit:validate`. |
 | `/builderkit:ship <request>` | 8-phase delivery pipeline (intake → recon → analysis → requirements → QA plan → implementation → verification → ship) with Linear journaling. |
 | `/builderkit:linear-issue <id>` | Take one Linear issue end-to-end: read → implement → verify → deploy → close with proof. |
 | `/builderkit:e2e [smoke\|full\|new <R-id>]` | Run or scaffold e2e flows per the 4-phase testing system. |

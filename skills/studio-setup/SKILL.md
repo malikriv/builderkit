@@ -27,6 +27,23 @@ show the result, get the user's confirmation (one consolidated question),
 write `.builderkit/config.yaml`. Never overwrite an existing config without
 showing a diff first.
 
+## Step 2.5 — Provision discover / validate / studio
+
+The config template now carries `discover:`, `validate:`, `studio:` sections and
+`modules.discover/validate` (written in Step 2). Additionally:
+
+- If `modules.discover` or `modules.validate` is true, create the studio store:
+  copy `${CLAUDE_PLUGIN_ROOT}/templates/studio/playbook.md` and
+  `templates/studio/validation-log.md` into `.builderkit/studio/` (the dir from
+  `studio.dir`), and create `.builderkit/studio/sprints/` (from `validate.sprints_dir`).
+  Never overwrite an existing studio file without showing a diff.
+- Fill the new template tokens from detection/confirmation:
+  `SPECS_DIR` (= `docs.specs_dir`), and the validate infra targets
+  `DEPLOY_PROVIDER`/`DEPLOY_PROJECT`, `DATA_PROVIDER`/`DATA_PROJECT`,
+  `PAY_PROVIDER`. Leave any unknown infra target blank — `validate` degrades that
+  step to planner-mode (constraint C2).
+- gitignore `.builderkit/studio/sprints/` (ephemeral per-sprint state).
+
 ## Step 3 — Walk the four phases
 
 For each phase NOT in `testing.phases_complete` (in order 1→4): explain what
@@ -77,6 +94,10 @@ one into the project, substitute every double-brace token from config:
 | `DEV_LOGIN_ENV_FILE` | `testing.dev_login.env_file` | scalar |
 | `FLOWS_DIR` | `testing.flows_dir` | scalar |
 | `EVIDENCE_DIR` | `testing.evidence_dir` | scalar |
+| `SPECS_DIR` | `docs.specs_dir` | scalar |
+| `DEPLOY_PROVIDER` / `DEPLOY_PROJECT` | `validate.deploy.*` | scalar (blank → planner-mode) |
+| `DATA_PROVIDER` / `DATA_PROJECT` | `validate.data.*` | scalar (blank → planner-mode) |
+| `PAY_PROVIDER` | `validate.payments.provider` | scalar (blank → planner-mode) |
 
 Hand-authored tokens (no config key — the agent writes project-specific
 lines in their place): `TAB_SWEEP` (one tapOn per primary-nav testid),

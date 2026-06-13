@@ -1,12 +1,12 @@
 {
   "name": "builderkit",
-  "description": "BuilderKit — ship-feature pipeline, 4-phase e2e testing, and Linear integration for app-studio projects.",
+  "description": "BuilderKit — discover → validate → ship: hypothesis hardening, 48h guerrilla validation sprint, ship-feature pipeline, 4-phase e2e testing, and Linear integration for studio projects.",
   "owner": { "name": "malikriv" },
   "plugins": [
     {
       "name": "builderkit",
       "source": "./",
-      "description": "Ship-feature pipeline + 4-phase e2e testing + Linear integration for studio projects."
+      "description": "BuilderKit — discover → validate → ship: hypothesis hardening, 48h guerrilla validation sprint, ship-feature pipeline, 4-phase e2e testing, and Linear integration for studio projects."
     }
   ]
 }
