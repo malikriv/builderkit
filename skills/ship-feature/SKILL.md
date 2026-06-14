@@ -57,6 +57,18 @@ not after the diff. Produce, in a few lines:
 If the request references specific values (colors, copy, counts), treat them
 as the user's acceptance criteria — verify each one explicitly in Phase 7.
 
+### Phase 0 — Validation handoff (when a Validation Report exists)
+
+If a `/builderkit:validate` Validation Report with a **delivery-commitment block** is
+present for this work, it is **binding Phase-0 input**:
+
+- The FIRST shippable slice must satisfy the promise the validated page made (feature,
+  price, the delivery window stated to payers) before any roadmap expansion — the build
+  is scoped by what was *sold*, not re-discovered.
+- Carry the **refund-runbook obligation**: if the committed first-access deadline
+  (`validate.delivery.max_days_to_first_access`) cannot be met, emit the payer list + a
+  refund runbook as a release-blocking owed step (never auto-move money).
+
 ### Phase 0.5 — Prioritize (defensible, written down)
 
 Score every intake item before building, so the order of work and any
