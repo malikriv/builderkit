@@ -40,7 +40,7 @@ become sprint tests in the brief, never blockers.
   >= 2 communities with non-zero standing), OR
 - (c) an unresolved TOP-ranked assumption whose provenance is `model-opinion` with no
   cheap test path, OR
-- (d) a D1 intensity verdict of `nice-to-have`.
+- (d) a D3 intensity verdict of `nice-to-have`.
 
 Everything else proceeds — Gate D is neutral triage ("no fatal flaw found on paper"),
 and the $50 sprint is the real backstop.

@@ -46,6 +46,8 @@ if [ "${1:-}" = "--complete" ]; then
     skills/discover/references/reality-probe.md \
     templates/discover/hypothesis-brief.md \
     templates/studio/playbook.md templates/studio/validation-log.md \
+    commands/audit.md \
+    skills/product-strategy/SKILL.md skills/product-strategy/reference/play-engine.md \
     templates/maestro/boot.yaml templates/maestro/smoke.yaml templates/maestro/ci-workflow.yml \
     templates/playwright/auth.setup.ts templates/playwright/evidence.ts templates/playwright/smoke.spec.ts templates/playwright/ci-workflow.yml templates/playwright/playwright.config.template.ts; do
     [ -f "$f" ] || err "missing required file: $f"

@@ -1,2 +1,9 @@
 .DS_Store
 node_modules/
+
+# Safety net — keep licensing-meta and personal licensed-content files out of the public repo.
+# These are guides/personal references, NOT plugin files. Never commit them.
+BUILDERKIT-INTEGRATION.md
+idea-evaluator-SKILL.md
+product-design-playbook-REFERENCE.md
+*-playbook-REFERENCE.md

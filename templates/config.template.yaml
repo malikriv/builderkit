@@ -42,12 +42,20 @@ docs:
   specs_dir: {{SPECS_DIR}}    # spec docs home, e.g. docs/specs/
   design_dirs: []             # optional: where design references live
 
+product:                      # read by discover (exit/positioning/sensitive) + the play audit
+  positioning: {{POSITIONING}}        # one-line wedge / brand stance (or "")
+  exit_strategy: {{EXIT_STRATEGY}}    # stated exit, keeps framing/claims safe (or "none")
+  sensitive_category: {{SENSITIVE}}   # true → Play Audit flags manipulative plays harder (health, finance, self-image, minors)
+  surfaces: []                # optional: known screens/overlays the Play Audit maps plays onto
+  playbook_ref: {{PLAYBOOK_REF}}      # OPTIONAL override only — engine is self-sufficient; leave empty unless you license a deck kept outside the plugin
+
 modules:
   delivery: true
   testing: true
   linear: true
   discover: true
   validate: true
+  product: true               # play audit + insight loop
 
 # ── discover module (idea → hardened hypothesis) ──
 discover:

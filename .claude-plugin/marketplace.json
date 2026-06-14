@@ -1,12 +1,12 @@
 {
   "name": "builderkit",
-  "description": "BuilderKit — discover → validate → ship: hypothesis hardening, 48h guerrilla validation sprint, ship-feature pipeline, 4-phase e2e testing, and Linear integration for studio projects.",
+  "description": "BuilderKit — demand-first app-studio pipeline: discover → audit → validate → ship → e2e → Linear → loop.",
   "owner": { "name": "malikriv" },
   "plugins": [
     {
       "name": "builderkit",
       "source": "./",
-      "description": "BuilderKit — discover → validate → ship: hypothesis hardening, 48h guerrilla validation sprint, ship-feature pipeline, 4-phase e2e testing, and Linear integration for studio projects."
+      "description": "Discover · audit · validate · ship · e2e · Linear · loop — the full demand-first studio pipeline for Claude Code."
     }
   ]
 }

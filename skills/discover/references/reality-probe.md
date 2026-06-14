@@ -1,43 +1,40 @@
-# D3.5 Reality probe — the cheapest disconfirmer
+# D2 Demand smoke — the cheapest real signal (front of the funnel)
 
-Before spending a deployed asset measured by the founder's (nonexistent)
-distribution, talk to / pre-sell REAL ICP humans. 10 targeted DMs or a manual
-pre-sale can produce a hard commitment in hours with zero infra — and tell you WHY
-people didn't convert, which anonymous landing traffic never can.
+Before spending any heavy analysis (D3's red-team), get a market **pulse**: put the
+offer in front of real ICP humans and see if anyone leans in. 10 targeted DMs or a
+manual pre-sale can produce a hard commitment in hours with zero infra — and tell you
+WHY people don't bite, which anonymous traffic never will. This runs in `discover` as
+**D2, before the red-team**, on the cheapest possible assets.
 
-Soft-gated, time-boxed (`discover.reality_probe.window_hours`, default 24),
-HUMAN-executed (the founder sends these from their own accounts). The agent drafts;
-the founder runs as many as the time-box allows; the agent records replies into the
-brief.
+Cheap assets only: named-list pre-sell DMs + an optional no-build fake-door (a form or
+one static page). **No landing/Supabase/Stripe stack** — that is `/builderkit:validate`.
+Time-boxed (`discover.reality_probe.window_hours`, default 24). Human-executed (the
+founder sends these from their own accounts). The agent drafts; the founder runs; the
+agent records replies.
 
 ## Draft, cheapest-first
 
-1. **Mom-Test interview scripts (5–10).** Ask about PAST behavior and CURRENT spend.
+1. **Mom-Test pre-sell DMs (5-10)** to specific named ICP members. Ask about PAST
+   behavior and CURRENT spend; offer to solve it now / ask for an LOI or small deposit.
    Never "would you use this?", never a pitch. Examples:
    - "Last time <problem> happened, what did you do about it?"
    - "What do you spend on <current workaround> today?"
-   - "Walk me through the last time this actually cost you something."
-2. **Concierge / pre-sale or LOI DM** to specific named ICP members — offer to solve
-   it manually now, or ask for a letter of intent / small deposit.
-3. **No-build fake-door DM/post** as the floor option (honesty note below).
+2. **No-build fake-door** (optional floor) — a form or one static page stating the real
+   stage ("early access, not built yet"). No fabricated product, no fake social proof.
 
-## Three deterministic outcomes (work always keeps moving)
+## Pulse gate (what D2 decides)
 
-- **STRONG DISCONFIRM** — people don't have the problem / won't pay / past behavior
-  contradicts it → route to discover sharpen-or-pivot. Counts against
-  `discover.red_team.max_rounds`.
-- **HARD CONFIRM** — >= 1 real commitment (verbal pre-sale / LOI / deposit) → proceed
-  to validate with that human already in the captured-user list (warm-starts the
-  sprint, partially de-risks Gate V).
-- **SILENCE / INCONCLUSIVE** within the window → NOT disconfirmation. Record
-  "probe inconclusive: reach=N, replies=M" as an owed step and PROCEED. Silence never
-  stalls the pipeline.
+- **PULSE** — >= 1 real pre-sell / LOI / deposit, OR a fake-door signal above the
+  stated floor → escalate to D3 with that human captured.
+- **NO PULSE, first pass** — do NOT kill yet. **Re-frame the offer or the audience ONCE
+  and retest** within the window. A weak first framing must not false-kill a real idea.
+- **NO PULSE after the re-frame** → kill/shelve; record the re-frame tried and the
+  verdict. A cheap kill, before the expensive machinery.
 
-When a real human contradicts a simulated red-team persona, the HUMAN wins, and it is
-logged to the studio playbook.
+A real human contradicting a (later) simulated red-team persona wins — log it to the
+studio playbook.
 
-## Honesty note (fake-door floor)
-If you run the no-build fake-door, state the real stage ("early access, not built
-yet") — no claiming a finished product, no fabricated social proof. The full
-honesty/landing red-line floor is enforced in the validate module before any public
-page or payment goes live.
+## Honesty
+
+Any fake-door states the real stage; no claiming a finished product, no fabricated
+social proof. The full landing/payment honesty floor lives in `/builderkit:validate`.

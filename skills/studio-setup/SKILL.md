@@ -27,10 +27,10 @@ show the result, get the user's confirmation (one consolidated question),
 write `.builderkit/config.yaml`. Never overwrite an existing config without
 showing a diff first.
 
-## Step 2.5 — Provision discover / validate / studio
+## Step 2.5 — Provision discover / validate / studio / product
 
-The config template now carries `discover:`, `validate:`, `studio:` sections and
-`modules.discover/validate` (written in Step 2). Additionally:
+The config template now carries `discover:`, `validate:`, `studio:`, and `product:`
+sections and `modules.discover/validate/product` (written in Step 2). Additionally:
 
 - If `modules.discover` or `modules.validate` is true, create the studio store:
   copy `${CLAUDE_PLUGIN_ROOT}/templates/studio/playbook.md` and
@@ -43,6 +43,11 @@ The config template now carries `discover:`, `validate:`, `studio:` sections and
   `PAY_PROVIDER`. Leave any unknown infra target blank — `validate` degrades that
   step to planner-mode (constraint C2).
 - gitignore `.builderkit/studio/sprints/` (ephemeral per-sprint state).
+- If the `product` module is enabled, also capture the `product:` block in the same
+  confirmation: `positioning` (one-line wedge), `exit_strategy` (or "none"),
+  `sensitive_category` (true/false), and optional `playbook_ref` (path to the user's
+  licensed play-deck reference, kept outside the plugin). These can be left blank —
+  the `product-strategy` skill self-provisions them on first `/builderkit:audit` run.
 
 ## Step 3 — Walk the four phases
 
