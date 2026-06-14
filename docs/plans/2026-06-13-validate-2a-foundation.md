@@ -14,7 +14,7 @@
 
 **Conventions for every task:**
 - Code tasks follow TDD: write the test, run it red, implement, run it green, commit.
-- `node --test templates/landing/` must pass before committing any evaluator change.
+- `node --test templates/landing/*.test.mjs` must pass before committing any evaluator change.
 - `scripts/lint.sh` (or `--complete` once the manifest is updated) must print `lint OK`.
 - No `{{` under `skills/` or `commands/` (this plan only touches `templates/` + `scripts/`, so braces are not a concern here).
 - Commit per Conventional Commits; every message ends with:
@@ -32,7 +32,7 @@
 - `templates/landing/payment-intent.mjs` — a documented Stripe **manual-capture preauth** stub (the hard signal), provider-shaped, "wire your key."
 - `templates/landing/privacy.md` — fill-in privacy/consent stub.
 - `templates/landing/README.md` — how to wire/deploy + the planner-mode fallback (constraint C2).
-- `scripts/test.sh` — runs `node --test templates/landing/`.
+- `scripts/test.sh` — runs `node --test templates/landing/*.test.mjs`.
 - `scripts/lint.sh` — add the new template files + `scripts/test.sh` to the `--complete` manifest.
 
 ### Shared data shapes (used by the evaluator AND the capture schema — keep identical)
@@ -192,7 +192,7 @@ test("verdict carries the counted rows (C6: no verdict without its rows)", () =>
 
 - [ ] **Step 2: Run the suite — verify it fails (module missing)**
 
-Run: `node --test templates/landing/`
+Run: `node --test templates/landing/*.test.mjs`
 Expected: FAIL — `Cannot find module '.../gate-eval.mjs'` (the implementation does not exist yet).
 
 - [ ] **Step 3: Implement the evaluator**
@@ -293,7 +293,7 @@ function mk(verdict, reason, m = {}) {
 
 - [ ] **Step 4: Run the suite — verify green**
 
-Run: `node --test templates/landing/`
+Run: `node --test templates/landing/*.test.mjs`
 Expected: all tests pass (`# pass 12`, `# fail 0`).
 
 - [ ] **Step 5: Commit**
@@ -383,7 +383,7 @@ export function recordLand() { if (new URLSearchParams(location.search).get("src
 
 ```bash
 node --check templates/landing/capture.js && echo "capture.js OK"
-node --test templates/landing/   # evaluator still green
+node --test templates/landing/*.test.mjs   # evaluator still green
 scripts/lint.sh
 ```
 Expected: `capture.js OK`; tests pass; `lint OK`.
@@ -487,7 +487,7 @@ export async function startPreauth(capture) {
 ```bash
 node --check templates/landing/payment-intent.mjs && echo "payment-intent OK"
 test -f templates/landing/index.html && echo "index.html OK"
-node --test templates/landing/   # evaluator still green
+node --test templates/landing/*.test.mjs   # evaluator still green
 scripts/lint.sh
 ```
 Expected: `payment-intent OK`; `index.html OK`; tests pass; `lint OK`.
@@ -575,7 +575,7 @@ sole scorer (spec C6).
 set -uo pipefail
 cd "$(dirname "$0")/.."
 command -v node >/dev/null || { echo "TEST FAIL: node required"; exit 1; }
-node --test templates/landing/
+node --test templates/landing/*.test.mjs
 ```
 
 Then: `chmod +x scripts/test.sh`
