@@ -1,0 +1,24 @@
+# Build plan (machine-readable) — written by /builderkit:audit alongside the prose
+# play-audit doc. This is the DAG /builderkit:ship waves through and the scope guard
+# (templates/delivery/scope-check.mjs) checks against. The prose doc is for humans; this
+# is the contract the pipeline executes. Keep the two in sync — every build-list item here.
+plan_version: 1
+product: {{PRODUCT_SLUG}}
+
+# Each item is one /builderkit:ship run. Order is not execution order — `depends_on` is.
+items:
+  - id: {{ITEM_ID}}              # short stable id, referenced by depends_on / slices
+    title: {{TITLE}}             # the build-list line
+    tier: {{TIER}}              # P0 (core loop) | P1 (deepen) | P2 (monetise/grow)
+    scope_origin: {{ORIGIN}}    # sold | expansion | backlog. Audit sets expansion/backlog;
+                                # ship RECONCILES the `sold` items after validate (the page
+                                # decides what was promised — unknown at audit time).
+    delivers: []                # sold-scope deliverable ids this item fulfils — set at ship
+                                # reconciliation, only on `sold` items.
+    depends_on: []              # ids that must merge before this one — defines the waves
+    complexity: {{N}}           # 1-5; >= delivery.model_routing.complexity_threshold escalates the model
+    surfaces: []                # screens/overlays this touches (from the audit B2 map)
+    files_hint: []              # globs the orchestrator expects to write — drives disjoint-file fan-out
+    metric: {{METRIC}}          # the Insight-Loop metric this item must move (audit B6)
+    decline: ""                 # NON-EMPTY = the brand audit flagged this play to DECLINE.
+                                # The scope guard hard-blocks any declined item from a slice.

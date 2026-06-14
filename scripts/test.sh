@@ -3,4 +3,4 @@
 set -uo pipefail
 cd "$(dirname "$0")/.."
 command -v node >/dev/null || { echo "TEST FAIL: node required"; exit 1; }
-node --test templates/landing/*.test.mjs
+node --test templates/landing/*.test.mjs templates/delivery/*.test.mjs

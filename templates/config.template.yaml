@@ -110,6 +110,44 @@ validate:
   payments: { provider: {{PAY_PROVIDER}},    mode: preauth_hold }
   max_rounds: 3                      # GTM/relaunch + message-variation loops
 
+# ── delivery module (ship: waves, scope guard, boundaries, model routing) ──
+delivery:
+  # Drift guard: ship recomputes scope fidelity with templates/delivery/scope-check.mjs
+  # against the audit build-plan + the validate sold-scope. A non-PASS verdict halts ship.
+  scope_guard:
+    enabled: true
+    build_plan: {{SPECS_DIR}}/build-plan.yaml      # the audit DAG (machine-readable)
+    sold_scope: {{SPECS_DIR}}/sold-scope.yaml      # the validate promise (machine-readable)
+  # Wave execution: ship topologically orders build-plan items into waves and fans out
+  # within a wave on DISJOINT file sets (single-writer rule). Cap concurrency to keep
+  # CI/review load sane and the orchestrator able to integrate.
+  waves:
+    max_parallel: 3                  # max build agents in flight at once
+  # Model routing: items at/above the complexity threshold get the stronger model.
+  model_routing:
+    enabled: true
+    complexity_threshold: 4          # build-plan item.complexity >= this -> escalated
+    default_model: sonnet
+    escalated_model: opus            # P0 / architectural / multi-surface work
+  # Bounded review/revision loop on CI or review findings (never an infinite retry).
+  review:
+    max_revision_loops: 3            # fix attempts before escalating to a human
+    escalate_to_human_after: 3
+  # File boundaries (glob syntax: * one segment, ** any depth). Mirrors the brand audit:
+  # declined plays + sensitive surfaces become mechanical guardrails, not just prose.
+  boundaries:
+    never_touch:                     # ship MUST NOT modify these; a hit fails the phase
+      - "**/*.lock"
+      - "**/package-lock.json"
+      - ".env*"
+      - "**/migrations/**"
+      - ".github/workflows/**"
+      - "**/secrets/**"
+    require_review:                  # ship MAY touch but MUST surface in the PR for human review
+      - "**/auth/**"
+      - "**/*.config.*"
+      - "**/payments/**"
+
 # ── studio (cross-product learning loop) ──
 studio:
   enabled: true

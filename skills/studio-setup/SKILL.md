@@ -37,6 +37,9 @@ sections and `modules.discover/validate/product` (written in Step 2). Additional
   `templates/studio/validation-log.md` into `.builderkit/studio/` (the dir from
   `studio.dir`), and create `.builderkit/studio/sprints/` (from `validate.sprints_dir`).
   Never overwrite an existing studio file without showing a diff.
+- If `modules.delivery` is true, seed the permanent memory tier: copy
+  `${CLAUDE_PLUGIN_ROOT}/templates/studio/learnings.md` to `.builderkit/learnings.md`
+  (the file every ship run reads at Phase 0). Never overwrite an existing one without a diff.
 - Fill the new template tokens from detection/confirmation:
   `SPECS_DIR` (= `docs.specs_dir`), and the validate infra targets
   `DEPLOY_PROVIDER`/`DEPLOY_PROJECT`, `DATA_PROVIDER`/`DATA_PROJECT`,

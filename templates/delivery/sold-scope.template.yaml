@@ -1,0 +1,22 @@
+# Sold-scope contract (machine-readable) — written by /builderkit:validate (V4) alongside
+# the prose Validation Report's delivery-commitment block. This is the PROMISE the winning
+# page made to people who paid: it is what /builderkit:ship is allowed to build FIRST, and
+# what the scope guard (templates/delivery/scope-check.mjs) enforces so the validated plan
+# cannot drift during the build. Derived from the page that actually converted — never
+# re-scoped after the fact.
+scope_version: 1
+slug: {{SLUG}}
+
+# What the page promised. Each deliverable id is referenced by a build-plan item's
+# `delivers:` list; a deliverable with no build item makes the slice UNDER-SCOPED.
+deliverables:
+  - id: {{DELIVERABLE_ID}}
+    title: {{WHAT_WAS_PROMISED}}   # the feature/outcome the payer was sold
+
+price: {{PRICE}}                    # the price the page charged / pre-authorised
+paid_cohort_count: {{N_PAYERS}}     # how many cold payers are owed first access
+max_days_to_first_access: {{MAX_DAYS}}  # = validate.delivery.max_days_to_first_access; the
+                                        # committed window. Overrun => DEADLINE-RISK + refund runbook.
+
+# Carried as a release obligation (PII stays in validate.data.*, never here):
+waitlist_obligation: {{N}} payers owed first access by {{DEADLINE}}; refund runbook owed if missed.

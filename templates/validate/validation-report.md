@@ -31,6 +31,8 @@
 - The promise the winning page made (feature, price, delivery window stated to payers): {{...}}
 - Paid cohort: {{...}}
 - First-access deadline ({{MAX_DAYS}} days, from validate.delivery.max_days_to_first_access): {{...}}
+- Machine-readable contract emitted: `docs.specs_dir/sold-scope.yaml` (the ship scope
+  guard checks every shippable slice against it — see scope-check.mjs).
 
 ## Recommendation
 {{proceed to /builderkit:ship | iterate-GTM (variant before kill) | back to /builderkit:discover | kill}}

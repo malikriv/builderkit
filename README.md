@@ -135,7 +135,7 @@ modules:
   product: true               # play audit + insight loop
   discover: true              # demand-first idea funnel
   validate: true              # 48h cold-pay-proof sprint
-# (the discover:, validate:, product:, and studio: sections follow in the generated config — see templates/config.template.yaml)
+# (the discover:, validate:, delivery:, product:, and studio: sections follow in the generated config — see templates/config.template.yaml)
 ```
 
 ## The 4-phase testing system
@@ -164,6 +164,39 @@ stack-agnostic). A user never has to supply a deck. `product.playbook_ref` is an
 **optional override** — point it at a deck you license and keep *outside* the plugin;
 leave it empty and the built-in engine runs the full audit on its own. The plugin
 deliberately ships the method, not any third-party catalog.
+
+## Plan-fidelity delivery (scope guard · waves · model routing · memory)
+
+The whole point of validating demand first is wasted if the build then drifts off the
+validated plan. The `delivery:` config (under `/builderkit:ship`) keeps the build honest:
+
+- **Scope guard (deterministic).** `/builderkit:audit` emits a machine-readable
+  `build-plan.yaml` (the build list as a DAG), and `/builderkit:validate` emits
+  `sold-scope.yaml` (what the converting page actually promised payers). Before building,
+  ship recomputes plan fidelity with `templates/delivery/scope-check.mjs` — a pure,
+  unit-tested function (the builder is not the judge, same discipline as Gate V). Anything
+  but `PASS` halts the pipeline: `DRIFT` (non-sold work scheduled before the sold promise),
+  `UNDER-SCOPED` (a sold deliverable has no build item), `DECLINED-PLAY-SCHEDULED` (a play
+  the brand audit told you to decline), `INVALID-DAG` (a dependency cycle), or
+  `DEADLINE-RISK` (the build overruns the committed first-access window → refund runbook owed).
+- **Waves.** Ship topologically orders the build-plan DAG into waves and fans out within a
+  wave on disjoint files up to `delivery.waves.max_parallel`, completing each wave before
+  the next.
+- **Model routing.** Each item carries a `complexity` (1–5); items at/above
+  `delivery.model_routing.complexity_threshold` get the stronger model.
+- **Boundaries.** `delivery.boundaries.never_touch` globs are off-limits;
+  `require_review` globs are allowed but surfaced in the PR for a human.
+- **Bounded review loop.** CI/review fixes are capped at `delivery.review.max_revision_loops`
+  before escalating to a human — a stuck loop is a signal, not something to grind on.
+
+## Two-tier memory
+
+- **Findings** — per-run discoveries (new APIs, patterns, gotchas) captured in the run's
+  spec doc and propagated across waves so a later agent never re-learns what an earlier one
+  already found.
+- **Learnings** — `.builderkit/learnings.md`, read at the start of every ship run. A
+  finding is promoted to a permanent learning once it recurs across
+  `studio.promote_after_k` runs, each rule tagged `critical` / `guideline` / `info`.
 
 ## Extending
 

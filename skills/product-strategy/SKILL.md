@@ -63,25 +63,41 @@ For each surface (`product.surfaces`, the brief's surfaces sketch, or the repo) 
 which plays apply and write a concrete "where it goes." Credit plays the product
 already implements so they aren't rebuilt.
 
-### B3 — Tier P0 / P1 / P2
+### B3 — Tier P0 / P1 / P2 + complexity
 P0 = the core loop doesn't work without it. P1 = deepens the loop / premium feel /
-controlled growth. P2 = monetisation & growth after the loop is validated.
+controlled growth. P2 = monetisation & growth after the loop is validated. Also rate each
+item's **complexity 1–5** (1 = a copy/style tweak; 5 = multi-surface or architectural) —
+ship routes items at/above `delivery.model_routing.complexity_threshold` to the stronger
+model.
 
 ### B4 — Flag conflicts
 Walk the flagging rules against the wedge and `product.sensitive_category`. Each
 manipulation-adjacent or off-brand play → **use as-is / constrain (how) / skip (why).**
-Mandatory, even if short.
+Mandatory, even if short. A **skip** verdict becomes a mechanical guardrail: that item
+carries a non-empty `decline:` in the build plan, and the ship scope guard hard-blocks it
+from ever entering a slice.
 
-### B5 — Ranked build list
-The ordered "do this first" sequence (8–12 items).
+### B5 — Ranked build list + the DAG
+The ordered "do this first" sequence (8–12 items). Then make the order *executable*: for
+each item assign a short stable `id` and its `depends_on` edges (which items must merge
+first). P0 core-loop items are the roots; P1/P2 hang off them. This DAG is what
+`/builderkit:ship` waves through — a flat list forces ship to re-derive the graph.
 
 ### B6 — Wire the Insight Loop
 Fill the metric → play table (engine reference) so every build-list item is measurable.
 
-**Output:** `docs.specs_dir/<product>-play-audit.md` (B1 weights → B2 maps → B4 flags →
-B5 build list → B6 metrics). The build list's growth/landing plays feed
-`/builderkit:validate`'s conversion asset + GTM; every item is ready to become a
-`/builderkit:ship <item>` run.
+**Output (two files, kept in sync):**
+1. `docs.specs_dir/<product>-play-audit.md` — the prose audit for humans (B1 weights →
+   B2 maps → B4 flags → B5 build list → B6 metrics).
+2. `docs.specs_dir/build-plan.yaml` — the machine-readable DAG from
+   `${CLAUDE_PLUGIN_ROOT}/templates/audit/build-plan.template.yaml` (one item per
+   build-list line: `id`, `tier`, `depends_on`, `complexity`, `surfaces`, `files_hint`,
+   `metric`, and `decline` for B4 skips). Leave `scope_origin`/`delivers` for ship to
+   reconcile after validate. This is the contract `/builderkit:ship` and the scope guard
+   (`templates/delivery/scope-check.mjs`) read.
+
+The build list's growth/landing plays feed `/builderkit:validate`'s conversion asset +
+GTM; every item is ready to become a `/builderkit:ship <item>` run.
 
 ### Insight Loop (metric-first; the closing loop)
 When a live loop isn't moving, or to make the build list measurable: pick ONE metric →

@@ -45,7 +45,10 @@ if [ "${1:-}" = "--complete" ]; then
     skills/discover/references/demand-intensity-rubric.md \
     skills/discover/references/reality-probe.md \
     templates/discover/hypothesis-brief.md \
-    templates/studio/playbook.md templates/studio/validation-log.md \
+    templates/studio/playbook.md templates/studio/validation-log.md templates/studio/learnings.md \
+    templates/audit/build-plan.template.yaml \
+    templates/delivery/sold-scope.template.yaml \
+    templates/delivery/scope-check.mjs templates/delivery/scope-check.test.mjs \
     commands/audit.md \
     skills/product-strategy/SKILL.md skills/product-strategy/reference/play-engine.md \
     templates/landing/gate-eval.mjs templates/landing/gate-eval.test.mjs \

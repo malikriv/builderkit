@@ -99,6 +99,15 @@ list (PII in `validate.data.*`, never `studio/`), and the **delivery-commitment 
 (the promise the page made, the paid cohort, the first-access deadline) that
 /builderkit:ship reads as binding Phase-0 input.
 
+On a PASS, also write the machine-readable **`<docs.specs_dir>/sold-scope.yaml`** from
+`${CLAUDE_PLUGIN_ROOT}/templates/delivery/sold-scope.template.yaml`: one `deliverables`
+entry per feature the winning page actually promised, the `price`, the
+`paid_cohort_count`, and `max_days_to_first_access` (= `validate.delivery.max_days_to_first_access`).
+This is the drift contract the ship scope guard (`templates/delivery/scope-check.mjs`)
+enforces — it is what was *sold*, derived from the page that converted, never re-scoped
+afterward. PII stays in `validate.data.*`; `sold-scope.yaml` carries only the obligation
+counts.
+
 ## Studio loop
 Read `.builderkit/studio/playbook.md` as priors (advisory; never gate). Write one
 `.builderkit/studio/validation-log.md` row, tagged (icp_type, archetype, primary_channel,

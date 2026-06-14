@@ -29,6 +29,9 @@ both this skill and the config where they conflict.
 - **Repo law first.** The project's `CLAUDE.md` rules override this skill where
   they overlap (verification requirements, build/deploy restrictions, commit
   conventions, versioning).
+- **Read learnings first.** Before Phase 0, read `.builderkit/learnings.md` (the
+  permanent memory tier) and honor it — `critical` rules are hard stops, `guideline`
+  rules are defaults you deviate from only with a written reason.
 - **Orchestrator owns judgment.** Subagents gather facts and produce drafts;
   the implementation decision (Phase 3), the final diff, and the verification
   gates (Phase 7) are never delegated.
@@ -41,6 +44,10 @@ both this skill and the config where they conflict.
 - **Report honestly.** If a gate could not run in this environment (e.g. no
   iOS simulator on a Linux cloud box), say so in the commit, the PR, and the
   reply — never imply a verification happened when it didn't.
+- **Respect declared boundaries.** `delivery.boundaries.never_touch` globs are
+  off-limits — a change matching one fails the phase and goes back to the user; never
+  edit a lockfile/migration/workflow to make a gate pass. `require_review` matches are
+  allowed but MUST be called out explicitly in the PR body for human review.
 
 ## Phase 0 — Intake
 
@@ -68,6 +75,29 @@ present for this work, it is **binding Phase-0 input**:
 - Carry the **refund-runbook obligation**: if the committed first-access deadline
   (`validate.delivery.max_days_to_first_access`) cannot be met, emit the payer list + a
   refund runbook as a release-blocking owed step (never auto-move money).
+
+#### Scope guard — deterministic, halts the pipeline (when `delivery.scope_guard.enabled`)
+
+Don't let the validated plan rot during the build. Reconcile, then check by code — the
+builder is not the judge of "did we stay on plan" (same discipline as Gate V):
+
+1. **Reconcile** `delivery.scope_guard.build_plan` (the audit DAG) against
+   `delivery.scope_guard.sold_scope` (the validate promise): for each sold-scope
+   `deliverable`, set `scope_origin: sold` + `delivers: [<id>]` on the build-plan item(s)
+   that fulfil it; leave the rest `expansion`/`backlog`. This mapping is the orchestrator's
+   judgment call — make it explicit, write it back to the plan.
+2. **Decide the slice** — the build-plan item ids you intend to ship in THIS run, plus an
+   `estimated_build_days` for them.
+3. **Check** by calling `evaluateScope({ plan, slice, estimated_build_days }, contract)`
+   from `${CLAUDE_PLUGIN_ROOT}/templates/delivery/scope-check.mjs` (pure, unit-tested via
+   `node --test`). Only **PASS** proceeds. Halt and resolve before any code on:
+   `DRIFT` (non-sold work scheduled before sold P0), `UNDER-SCOPED` (a sold deliverable has
+   no build item), `DECLINED-PLAY-SCHEDULED` (a brand-declined play in the slice — never
+   build it), `INVALID-DAG` (cycle), `DEADLINE-RISK` (overruns the committed window → the
+   refund-runbook obligation above fires). Record the verdict + reasons in the spec doc.
+
+If no build plan / sold scope exists (e.g. a standalone bug fix), skip the guard and note
+why — it gates validated-pipeline work, not every one-off.
 
 ### Phase 0.5 — Prioritize (defensible, written down)
 
@@ -175,8 +205,17 @@ Write `<docs.specs_dir>/YYYY-MM-DD-<slug>.md` containing:
    see (haptics, feel, native transitions), and each one must say what the
    human should look at.
 
-## Phase 5 — Build (parallel where safe)
+## Phase 5 — Build (waves, parallel where safe)
 
+- **Wave order from the DAG.** When a build plan covers this work, ship the items in
+  dependency order: topologically layer `build-plan.yaml` (the `waves` from
+  `topoWaves(plan)` in `scope-check.mjs` give the exact layers) and complete each wave
+  (merge + green) before the next. Within a wave, items with disjoint files run in
+  parallel up to `delivery.waves.max_parallel`.
+- **Route by complexity.** When `delivery.model_routing.enabled`, spawn each build agent
+  with the model its build-plan `complexity` implies: `>= complexity_threshold` →
+  `escalated_model`, else `default_model` (pass it as the Agent `model` param). P0 /
+  multi-surface / architectural items earn the stronger model; trivial tweaks don't.
 - Implement the change and the tests from the QA plan. Tests that encode the
   *new* behavior come from the plan's rows — name them so the mapping is
   obvious (test name ≈ requirement).
@@ -185,8 +224,15 @@ Write `<docs.specs_dir>/YYYY-MM-DD-<slug>.md` containing:
   tests). Give each agent: the spec doc path, its file list, and the
   requirement IDs it owns. Use `isolation: "worktree"` when agents would
   otherwise contend.
+- **Honor boundaries.** No agent edits a `delivery.boundaries.never_touch` path; if the
+  change appears to need one, stop and surface it. Any `require_review` path touched gets
+  flagged for the Phase 8 PR body.
 - The orchestrator integrates all branches/diffs and owns the final state of
   every file. Read the merged result before verifying — agents drift.
+- **Propagate findings across waves.** On each wave fan-in, capture the discoveries the
+  next wave needs — new APIs/types created, patterns established, gotchas hit — in the
+  spec doc, and hand them to the next wave's agents in their brief. A later agent should
+  never re-discover what an earlier one already learned this run.
 - Match the surrounding code's style; comments only for constraints the code
   can't express.
 
@@ -231,12 +277,36 @@ A failed gate loops back to Phase 5 — never ship around a failed gate.
   & why + design references + divergences).
 - Push with `git push -u origin <branch>`; open a **draft PR** whose body
   carries: the requirement list, test evidence (suite counts), screenshots
-  when available, divergences, and any owed manual gates.
+  when available, divergences, any owed manual gates, the scope-guard verdict,
+  and an explicit **Requires review** list for every `delivery.boundaries.require_review`
+  path the diff touched.
 - Subscribe to PR activity / watch CI to green. Fix failures as Phase 5
-  loops.
+  loops, but **bound the loop**: at most `delivery.review.max_revision_loops` fix
+  attempts on the same failure; after `delivery.review.escalate_to_human_after` with no
+  progress, stop and surface the diagnosis to the user rather than retrying forever
+  (a stuck loop is a signal, not a thing to grind on).
 - **Never** auto-trigger paid production builds, store submissions, or
   production deploys (for `stack: expo`: `eas build` / `eas submit`) — the
   user ships.
+
+## Memory — findings → learnings (two tiers)
+
+BuilderKit keeps two memory tiers so lessons compound instead of repeating:
+
+- **Findings (per-run, ephemeral).** Discoveries made during THIS build — new
+  APIs/types, established patterns, gotchas, the scope-guard verdict. They live in the
+  run's spec doc and propagate across waves (Phase 5). Scoped to one ship run.
+- **Learnings (permanent).** Rules that hold across builds, in `.builderkit/learnings.md`,
+  read at Phase 0. **Promote a finding to a learning only once it recurs across
+  `studio.promote_after_k` runs** (or when a single finding is clearly a standing rule,
+  e.g. "the generated schema is never hand-edited"). On ship, if a gotcha you hit this run
+  matches one already seen in a prior run's spec doc, propose promoting it: append a rule
+  to `learnings.md` with its enforcement level and the runs it came from. Aggregate rules
+  only — never raw user data.
+
+Cross-product priors (GTM/landing tactics, panel-vs-outcome) stay in
+`.builderkit/studio/playbook.md` via discover/validate; `learnings.md` is this project's
+delivery rules.
 
 ## Linear historian (team `linear.team` — `linear.url`)
 
