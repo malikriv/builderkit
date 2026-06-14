@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{HEADLINE}}</title>
+</head>
+<body>
+  <!-- One ICP-matched headline -> problem agitate -> value -> ONE primary CTA. -->
+  <main>
+    <h1>{{HEADLINE}}</h1>           <!-- the ICP's problem in their words -->
+    <p>{{PROBLEM_AGITATE}}</p>
+    <p>{{VALUE_PROP}}</p>
+
+    <!-- Waitlist / activation (soft tier). -->
+    <form id="waitlist">
+      <input id="email" type="email" required placeholder="you@email.com" />
+      <button type="submit">{{CTA}}</button>
+    </form>
+
+    <!-- Two-signal WTP probe. HARD = real card pre-auth (counts). SOFT = intent click (weight 0). -->
+    <section id="wtp">
+      <button id="reserve">Reserve at {{PRICE}} — refundable hold</button> <!-- HARD: preauth -->
+      <button id="interested">I'd pay for this</button>                    <!-- SOFT: intent only -->
+    </section>
+
+    <p><small>Early access — not built yet. {{REFUND_LINE}} See <a href="privacy.md">privacy</a>.</small></p>
+  </main>
+
+  <script type="module">
+    import { capture, recordLand } from "./capture.js";
+    import { startPreauth } from "./payment-intent.mjs";
+    recordLand();
+    document.getElementById("waitlist").addEventListener("submit", (e) => {
+      e.preventDefault();
+      capture("signup", { email: document.getElementById("email").value });
+    });
+    document.getElementById("interested").addEventListener("click", () => capture("intent_click"));
+    document.getElementById("reserve").addEventListener("click", () => startPreauth(capture));
+  </script>
+</body>
+</html>
