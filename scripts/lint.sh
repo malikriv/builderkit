@@ -50,7 +50,7 @@ if [ "${1:-}" = "--complete" ]; then
     skills/product-strategy/SKILL.md skills/product-strategy/reference/play-engine.md \
     templates/landing/gate-eval.mjs templates/landing/gate-eval.test.mjs \
     templates/landing/schema.sql templates/landing/capture.js \
-    templates/landing/index.html templates/landing/payment-intent.mjs \
+    templates/landing/wiring-reference.html templates/landing/payment-intent.mjs \
     templates/landing/privacy.md templates/landing/README.md \
     scripts/test.sh \
     templates/maestro/boot.yaml templates/maestro/smoke.yaml templates/maestro/ci-workflow.yml \

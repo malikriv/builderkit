@@ -5,7 +5,10 @@ fill the `{{TOKENS}}` from `.builderkit/config.yaml` + the discover brief, wire 
 connectors, deploy.
 
 ## Pieces
-- `index.html` — one ICP headline → problem → value → single CTA + the two-signal WTP probe.
+- `wiring-reference.html` — a WIRING REFERENCE (not a launch page): shows how a page
+  calls `capture()` / `recordLand()` / `startPreauth()`. You build and design the real
+  page in your own tool (see `skills/validate/references/landing-conversion.md`) and
+  reuse this wiring. The kit ships no auto-page.
 - `capture.js` — cookieless, idempotent client capture; cohort from the link's `?src=`.
 - `schema.sql` — the `builderkit_events` table (unique `dedupe_key` = idempotency).
 - `payment-intent.mjs` — the HARD signal: a Stripe manual-capture **pre-auth** (no money moves).
