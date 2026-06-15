@@ -1,0 +1,5 @@
+[
+  {"ts":1500,"tier":"land","cohort":"cold_public","session":"s1","is_founder":false},
+  {"ts":1500,"tier":"signup","cohort":"cold_public","email":"a@x.io","session":"s1","is_founder":false},
+  {"ts":1500,"tier":"payment","cohort":"cold_public","email":"b@x.io","session":"s2","amount":9,"live":true,"is_founder":false}
+]
