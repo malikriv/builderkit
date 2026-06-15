@@ -45,6 +45,12 @@ sections and `modules.discover/validate/product` (written in Step 2). Additional
   `DEPLOY_PROVIDER`/`DEPLOY_PROJECT`, `DATA_PROVIDER`/`DATA_PROJECT`,
   `PAY_PROVIDER`. Leave any unknown infra target blank — `validate` degrades that
   step to planner-mode (constraint C2).
+  When `DATA_PROVIDER` is non-blank, copy `${CLAUDE_PLUGIN_ROOT}/templates/landing/server/capture.route.mjs`
+  into the project's capture endpoint and set its env (`SUPABASE_URL`,
+  `SUPABASE_SERVICE_ROLE_KEY`); when `PAY_PROVIDER` is non-blank, copy
+  `server/preauth.route.mjs` and set `STRIPE_SECRET_KEY` (LIVE), `BK_PRICE_CENTS`,
+  `BK_CURRENCY`. Adapt the handler signature to the project's framework if it isn't
+  Vercel/Node.
 - gitignore `.builderkit/studio/sprints/` (ephemeral per-sprint state).
 - If the `product` module is enabled, also capture the `product:` block in the same
   confirmation: `positioning` (one-line wedge), `exit_strategy` (or "none"),
