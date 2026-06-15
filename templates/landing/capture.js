@@ -23,9 +23,18 @@ export async function capture(tier, { email = null, amount = 0, live = false } =
     cohort: cohortFromSource(params.get("src")),
     is_founder: false, // ingestion (validate V3) re-flags founder/known-contact rows
   };
+  if (STORE_ENDPOINT === "") return; // true planner-mode: nothing wired, intentional no-op
   try {
-    await fetch(STORE_ENDPOINT, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
-  } catch (_) { /* planner-mode / offline: the founder reconciles from the store export */ }
+    const res = await fetch(STORE_ENDPOINT, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+    if (!res.ok) throw new Error("capture route " + res.status);
+  } catch (e) {
+    console.error("[builderkit] capture failed:", e);
+    if (typeof document !== "undefined") {
+      let el = document.getElementById("bk-warn");
+      if (!el) { el = document.createElement("div"); el.id = "bk-warn"; el.style.cssText = "background:#fee;color:#900;padding:8px;font:14px sans-serif"; document.body.prepend(el); }
+      el.textContent = "Event capture failed — your store is not recording. Fix before launch.";
+    }
+  }
 }
 // A "qualified land" = first view of the page from a tracked link. Recorded as its own
 // `land` tier (NOT a conversion) so the orchestration can count lands for the exposure

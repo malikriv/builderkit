@@ -1,5 +1,11 @@
 # Guerrilla GTM playbook (<= $50, founder-run)
 
+> **PASS-anchor (read first):** Gate V requires ≥ 1 **cold_public** hard pay-proof and
+> ≥ 60% cold weight. DMs to your warm list build the floor but are weighted 0.5 and a
+> warm buyer does NOT clear the gate. So this playbook has TWO jobs: (1) DMs build the
+> named list; (2) at least one channel must drive **strangers** to the public
+> `?src=cold_public` tracked link. Plan for the cold buyer from the start.
+
 Only job: the fastest, cheapest path to real signups from people who don't know you.
 
 ## Channel standing (V1, before the clock)

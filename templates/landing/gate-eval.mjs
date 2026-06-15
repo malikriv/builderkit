@@ -5,6 +5,7 @@
 
 const HARD_TIERS = new Set(["payment", "loi", "scarce_action"]);
 const COUNT_TIERS = new Set(["signup", "activation", "payment", "loi", "scarce_action"]);
+const toMs = (v) => (typeof v === "number" ? v : Date.parse(v));
 
 export function evaluateGate(input, predicates) {
   const { rows = [], lands = null, measurable = true } = input;
@@ -14,7 +15,8 @@ export function evaluateGate(input, predicates) {
   if (measurable === false || lands === null || lands === undefined) {
     return mk("NOT-MEASURABLE", "analytics/instrumentation not firing");
   }
-  const inWindow = rows.filter((x) => x.ts >= p.window_start && x.ts <= p.window_end);
+  const ws = toMs(p.window_start), we = toMs(p.window_end);
+  const inWindow = rows.filter((x) => { const t = toMs(x.ts); return t >= ws && t <= we; });
   const hard = inWindow.filter((x) => HARD_TIERS.has(x.tier) && !x.is_founder);
   if (p.require_pay_proof && hard.length > 0 && hard.every((x) => x.live !== true)) {
     return mk("NOT-MEASURABLE", "pay-proof present only in test/sandbox mode");
@@ -35,9 +37,9 @@ export function evaluateGate(input, predicates) {
   // 4. Cold hard pay-proof.
   const hasColdHardPayProof = counted.some((x) =>
     HARD_TIERS.has(x.tier) &&
-    (!p.pay_proof.cold_required || x.cohort === "cold_public") &&
-    (!p.pay_proof.live_mode_only || x.live === true) &&
-    (x.amount || 0) >= p.pay_proof.min_amount
+    (!p.pay_proof?.cold_required || x.cohort === "cold_public") &&
+    (!p.pay_proof?.live_mode_only || x.live === true) &&
+    (x.amount || 0) >= (p.pay_proof?.min_amount ?? 0)
   );
 
   const m = { countedUsers, weighted, coldWeightFraction, friendShare, hasColdHardPayProof, countedRows: counted };
@@ -48,7 +50,7 @@ export function evaluateGate(input, predicates) {
   }
 
   // 6. Rate guard (only above the sample floor) -> land-and-bounce FAIL.
-  if (lands >= p.rate.rate_min_sample_visits && countedUsers / lands < p.rate.min_lp_visit_to_signup_rate) {
+  if (p.rate && lands >= p.rate.rate_min_sample_visits && countedUsers / lands < p.rate.min_lp_visit_to_signup_rate) {
     return mk("FAIL", "landed-and-bounced — visit->signup rate below floor", m);
   }
 

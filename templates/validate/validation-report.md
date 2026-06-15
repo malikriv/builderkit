@@ -14,7 +14,11 @@
 | lands | | | | |
 | signups | | | | |
 | activations | | | | |
-| pay-proof | | | | |
+| pay-proof (live=true, amount ≥ min_amount) | | | | |
+
+> A pay-proof row counts ONLY with `live: true` and `amount` ≥ the gate's `min_amount`
+> (= `min_pct_of_price%` × the D2 price). An `amount: 0` or `live: false` pay-proof does
+> not count — record each pay-proof's `live` and `amount` explicitly.
 
 ## Gate V verdict (from gate-eval.mjs)
 - Verdict: {{PASS | FAIL | INCONCLUSIVE | NOT-MEASURABLE}}

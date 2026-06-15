@@ -33,7 +33,10 @@ To pin BuilderKit for a whole team, add it to the project's `.claude/settings.js
 
 ## Quickstart
 
-1. Run `/builderkit:setup` once per project. It detects your stack, confirms the generated config, and walks the 4 testing phases one at a time — each scaffolded from plugin templates and verified live before moving on.
+1. Run `/builderkit:setup` once per project. It detects your stack and writes
+   `.builderkit/config.yaml`. **No app required** — if you only have an idea, setup
+   writes an app-free config and points you straight to `/builderkit:discover <seed>`
+   (the 4 e2e testing phases come online later, after `/builderkit:ship`).
 2. For a new idea (or to plan an existing one), run `/builderkit:discover <seed>` to funnel it through triage → demand smoke → hardening, then `/builderkit:audit` to turn the survivor into a ranked, brand-safe build list. Each build-list item is ready to ship.
 3. From then on, run `/builderkit:ship <request>` for delivery work — feature, bug fix, design correction, or user feedback.
 
@@ -59,6 +62,13 @@ possible:
 - **Insight Loop** — after ship, improve one metric with one play at a time; a
   cross-product studio playbook (`.builderkit/studio/`) accumulates priors so each new
   product starts smarter.
+
+**What a validate sprint actually costs.** The `≤ $50` is the ad/outreach cap only.
+A PASS-capable run also needs your unpriced founder-hours (build the page, the prospect
+list, the posts) and a LIVE-mode Stripe account (sandbox pay-proofs are rejected as
+NOT-MEASURABLE), plus a data store + deploy host. Most honest first sprints land
+INCONCLUSIVE/no-PASS — that means the channel under-delivered audience, not that the idea
+failed. The advertised "25 lands" is the INCONCLUSIVE floor; aim for ~100–200 cold lands.
 
 ## Commands
 

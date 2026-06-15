@@ -50,11 +50,14 @@ if [ "${1:-}" = "--complete" ]; then
     templates/delivery/sold-scope.template.yaml \
     templates/delivery/scope-check.mjs templates/delivery/scope-check.test.mjs \
     templates/delivery/scope-check.integration.test.mjs \
+    templates/delivery/scope-run.mjs \
     commands/audit.md \
     skills/product-strategy/SKILL.md skills/product-strategy/reference/play-engine.md \
     templates/landing/gate-eval.mjs templates/landing/gate-eval.test.mjs \
     templates/landing/schema.sql templates/landing/capture.js \
     templates/landing/wiring-reference.html templates/landing/payment-intent.mjs \
+    templates/landing/gate-run.mjs templates/landing/gate-run.test.mjs \
+    templates/landing/server/capture.route.mjs templates/landing/server/preauth.route.mjs \
     templates/landing/privacy.md templates/landing/README.md \
     scripts/test.sh \
     commands/validate.md skills/validate/SKILL.md \

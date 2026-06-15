@@ -41,6 +41,26 @@ ids, channels_posted, last_event_cursor, tier_counts, gate_status). On re-invoca
 **load-and-branch**: open -> resume from the cursor; past window -> evaluate; passed/
 failed -> report the prior verdict. Never re-create infra mid-sprint.
 
+**Scoring shape (B1/B5):** the frozen predicates are the *nested* shape `gate-eval.mjs`
+expects — build them with `gate-run.mjs`'s `buildPredicates(validate.gate, {windowStart,
+windowEnd, price})` (it re-nests `rate.*`, computes `pay_proof.min_amount = ceil(
+min_pct_of_price% × the D2 price)`, and takes the window from sprint-state). Window bounds
+and event `ts` must share units; `gate-eval.mjs` normalizes ISO strings, but pass the
+window in the same form your export uses.
+
+**Compute + show the PASS target (W2):** `min_qualified_lands` (25) is the INCONCLUSIVE
+floor, NOT the goal. At V0 compute and tell the founder a lands-to-PASS target ≈
+`ceil(floor_users / expected_cold_signup_rate)` (≈ 100–200 cold lands at a 5–10% signup
+rate). Aim there.
+
+**Payment hard-stop (B4):** if `validate.payments.provider` is blank AND
+`require_pay_proof` is true, STOP before any GTM and force a choice — **Path A:** wire a
+Stripe manual-capture pre-auth / Payment Link at ≥ `min_pct_of_price`% of the D2 price in
+LIVE mode (a hold; no money settles); **Path B:** the gate-eligible hand-LOI recipe — a
+real signed LOI/deposit recorded as a row `{tier:"loi", cohort:"cold_public", live:true,
+amount: ceil(min_pct_of_price% × price)}`. A planner-mode run with neither path CANNOT
+reach PASS (an `amount:0` or warm LOI fails the pay-proof) — say so plainly.
+
 ## V1 — Guerrilla GTM (DM-first)
 Run `${CLAUDE_PLUGIN_ROOT}/skills/validate/references/guerrilla-playbook.md`: channel
 standing, the named-prospect list, per-channel tracked links (the `?src=` tag classifies
@@ -61,9 +81,11 @@ it to the plumbing.
 **Pre-launch gate (the sprint does not count until this passes):** verify the
 human-built page (a) clears the conversion rubric with explicit human sign-off, (b)
 clears the honesty floor
-(`${CLAUDE_PLUGIN_ROOT}/skills/validate/references/honesty-floor.md`), and (c) actually
-fires the capture events (a test land/signup/probe is recorded). A verify-fail sends the
-page back for edits — no new loop. The kit never auto-launches a page.
+(`${CLAUDE_PLUGIN_ROOT}/skills/validate/references/honesty-floor.md`), and (c) a test
+land/signup/probe event actually **LANDS in the store** (confirm the row exists by
+querying the table, or a CSV/manual row in planner-mode) — not merely that the browser
+"fired" it; a wired-but-broken backend records nothing visibly otherwise. A verify-fail
+sends the page back for edits — no new loop. The kit never auto-launches a page.
 
 ## V3 — Launch (human posts; cold-tagged ingestion)
 The founder posts from their own accounts (`auto_post: false`). The clock starts at the
@@ -74,10 +96,14 @@ re-runs /validate to poll; each poll advances the cursor idempotently. An option
 Actions cron can poll hands-off, but is never required.
 
 ## Gate V — recomputed, three-way + not-measurable
-Export the raw rows + the qualified-lands count and call `evaluateGate({rows, lands,
-measurable}, predicates)` from `gate-eval.mjs` against the frozen predicates (its logic
-is unit-tested via `node --test`; the skill just calls it and reports its result + the
-raw counted rows). Outcomes:
+Export the raw rows to JSON and `validate.gate` to JSON, then run the canonical driver:
+`node ${CLAUDE_PLUGIN_ROOT}/templates/landing/gate-run.mjs --export rows.json --gate
+gate.json --price <D2 price> --window-start <start> --window-end <end>` (add `--lands N`
+in planner-mode). It builds the nested predicates, derives **`lands` = count of in-window,
+non-founder `land` rows (deduped by session)**, calls `evaluateGate`, prints the verdict +
+counted rows, and WARNS if 0 rows fall in-window. Report its output verbatim — never
+declare a verdict from memory. (Planner-mode: set `--lands` to your hand-counted distinct
+qualified impressions; if you can't count them, treat the run as NOT-MEASURABLE.) Outcomes:
 - **PASS** — exposure met, cold-weighted floor met, >=1 cold hard pay-proof -> hand
   audit's build list to /builderkit:ship.
 - **INCONCLUSIVE** — lands below the exposure floor -> extend once / re-channel; NEVER

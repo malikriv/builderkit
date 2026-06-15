@@ -1,0 +1,6 @@
+{ "floor_users": 1, "min_qualified_lands": 1,
+  "weights": { "payment": 5, "loi": 5, "scarce_action": 3, "activation": 2, "signup": 1, "intent_click": 0 },
+  "cohort_weights": { "cold_public": 1.0, "warm_dm": 0.5, "friend": 0.25, "unverifiable": 0 },
+  "min_cold_weight_fraction": 0.6, "max_friend_share": 0.4, "require_pay_proof": true,
+  "min_lp_visit_to_signup_rate": 0.05, "rate_min_sample_visits": 40,
+  "pay_proof": { "cold_required": true, "live_mode_only": true, "min_pct_of_price": 25 } }

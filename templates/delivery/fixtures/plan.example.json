@@ -1,0 +1,4 @@
+[
+  {"id":"a","tier":"P0","scope_origin":"sold","delivers":["d1"],"depends_on":[],"complexity":3},
+  {"id":"b","tier":"P1","scope_origin":"audit","delivers":[],"depends_on":["a"],"complexity":2}
+]

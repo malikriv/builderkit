@@ -31,7 +31,21 @@ Then: problem agitate (their words) -> how it works (<= 3 steps) -> proof/credib
 - [ ] Mobile-first; loads fast (~2s); no layout shift.
 - [ ] The two-signal WTP probe is wired (hard preauth + soft intent-click).
 - [ ] Honesty line states the real stage ("early access — not built yet").
-- [ ] Capture fires: a test land + signup + probe each record an event.
+- [ ] Capture LANDS: a test land + signup + probe each record a row in the store (not just "fire" in the browser).
+
+## Hard pay-proof recipe (Stripe manual-capture pre-auth)
+The page's "reserve" button must collect a real card and confirm an authorization — a
+hold, not a charge — before anything counts as a hard pay-proof:
+1. Load Stripe.js; mount a card Element as `window.bkCardElement`.
+2. POST `/api/preauth` (see `${CLAUDE_PLUGIN_ROOT}/templates/landing/server/preauth.route.mjs`)
+   to create a LIVE `capture_method:"manual"` PaymentIntent at the D2 price; it returns a
+   `client_secret`.
+3. `stripe.confirmCardPayment(client_secret, { payment_method: { card: window.bkCardElement }})`.
+4. ONLY on `requires_capture`/`succeeded` does `payment-intent.mjs` record
+   `capture("payment", {amount, live:true})`. Any other outcome records a SOFT
+   `intent_click`. `live:true` is valid ONLY after a confirmed authorization.
+5. Void the holds at sprint end (no money settles). This is a hold, not a checkout — do
+   NOT build a full Elements purchase flow.
 
 ## Honesty floor
 Load `${CLAUDE_PLUGIN_ROOT}/skills/validate/references/honesty-floor.md`; the page must

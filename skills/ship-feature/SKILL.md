@@ -100,9 +100,17 @@ builder is not the judge of "did we stay on plan" (same discipline as Gate V):
    judgment call — make it explicit, write it back to the plan.
 2. **Decide the slice** — the build-plan item ids you intend to ship in THIS run, plus an
    `estimated_build_days` for them.
-3. **Check** by calling `evaluateScope({ plan, slice, estimated_build_days }, contract)`
-   from `${CLAUDE_PLUGIN_ROOT}/templates/delivery/scope-check.mjs` (pure, unit-tested via
-   `node --test`). Only **PASS** proceeds. Halt and resolve before any code on:
+3. **Check** by running the scope-guard driver — get the verdict from the driver (don't
+   eyeball it): extract `build-plan.yaml` -> `plan.json` and `sold-scope.yaml` ->
+   `contract.json`, then run:
+   ```
+   node ${CLAUDE_PLUGIN_ROOT}/templates/delivery/scope-run.mjs \
+     --plan plan.json --contract contract.json \
+     --slice <first-slice ids> [--est-days N]
+   ```
+   Report its verdict verbatim; any non-PASS exits non-zero and **HALTS ship** — the
+   builder is never the judge of plan fidelity (same C6 principle as Gate V). Only
+   **PASS** proceeds. Halt and resolve before any code on:
    `DRIFT` (non-sold work scheduled before sold P0), `UNDER-SCOPED` (a sold deliverable has
    no build item), `DECLINED-PLAY-SCHEDULED` (a brand-declined play in the slice — never
    build it), `INVALID-DAG` (cycle), `DEADLINE-RISK` (overruns the committed window → the

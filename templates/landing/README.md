@@ -13,6 +13,10 @@ connectors, deploy.
 - `schema.sql` — the `builderkit_events` table (unique `dedupe_key` = idempotency).
 - `payment-intent.mjs` — the HARD signal: a Stripe manual-capture **pre-auth** (no money moves).
 - `gate-eval.mjs` — recomputes the Gate V verdict from the raw rows (see below).
+- `gate-run.mjs` — the canonical Gate V scorer CLI (`node gate-run.mjs --export rows.json
+  --gate gate.json --price N --window-start <s> --window-end <e> [--lands N]`).
+- `server/capture.route.mjs`, `server/preauth.route.mjs` — copy-paste reference backends
+  for `/api/capture` (Supabase insert) and `/api/preauth` (Stripe manual-capture hold).
 - `privacy.md` — fill-in privacy/consent.
 
 ## Wiring (from config)
@@ -27,9 +31,8 @@ no data connector, the founder reconciles signups from a form/CSV export. The Ga
 verdict is then computed by running `gate-eval.mjs` over the hand-collected rows.
 
 ## Scoring the gate
-`gate-eval.mjs` is the **single source of truth** for PASS / FAIL / INCONCLUSIVE /
-NOT-MEASURABLE. Export the raw rows, build the frozen predicates from
-`validate.gate` (with `min_amount = min_pct_of_price × price`), and call
-`evaluateGate({rows, lands, measurable}, predicates)`. The verdict carries the exact
-counted rows so a human or a separate agent can reproduce it — the builder is never the
-sole scorer (spec C6).
+Run `gate-run.mjs` (above) — it builds the nested predicates from `validate.gate`
+(computing `min_amount` from the D2 price), derives `lands` from in-window `land` rows,
+calls `gate-eval.mjs`, and prints the verdict + counted rows so a human or a separate
+agent can reproduce it. It WARNS if 0 rows fall in-window (a timestamp-units mistake).
+The builder is never the sole scorer (spec C6).

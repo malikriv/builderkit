@@ -92,3 +92,20 @@ test("verdict carries the counted rows (C6: no verdict without its rows)", () =>
   assert.ok(Array.isArray(out.countedRows));
   assert.equal(out.countedRows.length, out.countedUsers);
 });
+
+test("does not throw on a flat/partial predicates object (crash-guard)", () => {
+  const flat = { window_start: 1000, window_end: 2000, floor_users: 10,
+    min_qualified_lands: 25, weights: P.weights, cohort_weights: P.cohort_weights,
+    min_cold_weight_fraction: 0.6, max_friend_share: 0.4, require_pay_proof: false };
+  // no `rate`, no `pay_proof` keys — must degrade, not TypeError
+  assert.doesNotThrow(() => evaluateGate({ rows: signups(10), lands: 30 }, flat));
+});
+
+test("ISO-string timestamps are counted in-window (units normalized)", () => {
+  const iso = (o) => r({ ts: "2026-06-14T12:00:00Z", ...o });
+  const isoSignups = Array.from({ length: 10 }, (_, i) => iso({ tier: "signup", email: `u${i}@x.io` }));
+  const isoPay = iso({ tier: "payment", cohort: "cold_public", email: "buyer@x.io", amount: 9, live: true });
+  const Piso = { ...P, window_start: "2026-06-13T00:00:00Z", window_end: "2026-06-15T00:00:00Z" };
+  const out = evaluateGate({ rows: [...isoSignups, isoPay], lands: 30 }, Piso);
+  assert.equal(out.verdict, "PASS"); // would be INCONCLUSIVE (0 in-window) if ts weren't normalized
+});

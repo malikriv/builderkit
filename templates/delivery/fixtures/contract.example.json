@@ -1,0 +1,2 @@
+{ "scope_version": 1, "slug": "demo", "deliverables": [ { "id": "d1", "title": "the sold thing" } ],
+  "price": 20, "paid_cohort_count": 3, "max_days_to_first_access": 30 }

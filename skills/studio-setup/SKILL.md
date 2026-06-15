@@ -20,6 +20,15 @@ Read package.json(s), lockfiles, repo layout:
 - Monorepo with both (e.g. an Expo app plus a vite/next site): detect at the chosen `commands.workdir`; if that package has both, expo/RN wins (it's the shippable app). Surface the ambiguity in the Step 2 confirmation.
 - Linear MCP reachability (`list_teams`); note the team key for this product.
 
+**Greenfield (idea-stage) branch.** Empty stack/driver/dev is EXPECTED, not a detection
+failure — the founder may have only an idea. When detection finds no buildable app, take
+the greenfield path: in Step 2 write ONLY the app-free sections (`project.name`, `docs`,
+`product`, `discover`, `validate`, `studio`, `modules`) with `modules.testing: false`
+and leave `testing.*` blank; in Step 3 SKIP the four-phase e2e walk and tell the founder
+"setup is done — run `/builderkit:discover <seed>` next." Do not flag blank `testing.*`
+as drift while `modules.testing` is false; the testing phases come online later, after
+`/builderkit:ship` produces an app.
+
 ## Step 2 — Configure
 
 Fill `${CLAUDE_PLUGIN_ROOT}/templates/config.template.yaml` from detection,
@@ -45,6 +54,12 @@ sections and `modules.discover/validate/product` (written in Step 2). Additional
   `DEPLOY_PROVIDER`/`DEPLOY_PROJECT`, `DATA_PROVIDER`/`DATA_PROJECT`,
   `PAY_PROVIDER`. Leave any unknown infra target blank — `validate` degrades that
   step to planner-mode (constraint C2).
+  When `DATA_PROVIDER` is non-blank, copy `${CLAUDE_PLUGIN_ROOT}/templates/landing/server/capture.route.mjs`
+  into the project's capture endpoint and set its env (`SUPABASE_URL`,
+  `SUPABASE_SERVICE_ROLE_KEY`); when `PAY_PROVIDER` is non-blank, copy
+  `server/preauth.route.mjs` and set `STRIPE_SECRET_KEY` (LIVE), `BK_PRICE_CENTS`,
+  `BK_CURRENCY`. Adapt the handler signature to the project's framework if it isn't
+  Vercel/Node.
 - gitignore `.builderkit/studio/sprints/` (ephemeral per-sprint state).
 - If the `product` module is enabled, also capture the `product:` block in the same
   confirmation: `positioning` (one-line wedge), `exit_strategy` (or "none"),
