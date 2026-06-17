@@ -18,6 +18,13 @@ short-term guerrilla validation sprint — proving (or cheaply killing) real col
 stops at the PASS boundary and hands off a validated thesis. It does **not** own the build,
 the tests, or the tickets.
 
+**Audience:** **vibe coders** — people who ship apps fast with AI builders and are strong at
+*building* but rarely run disciplined validation. The job is to give them confidence on
+*what to build and what not to build* before they sink weeks into the wrong app.
+**Distribution is deliberately undecided** (Claude Code plugin today; possibly a hosted SaaS
+later). This scope is written so one portable core powers either direction, with everything
+distribution-specific isolated to an adapter layer — see *Distribution-agnostic architecture*.
+
 ## Why
 
 - The execution machinery (ship's 8-phase delivery, the `delivery:` scope-guard/waves/
@@ -37,6 +44,30 @@ The thesis is one sentence — *"this ICP will pay this much for this wedge"* �
 job is to make that sentence true or kill it cheap. Gate V PASS = thesis **validated**;
 KILL = thesis **falsified**, cheaply. The studio playbook is the record of theses across
 products.
+
+## Audience: vibe coders
+
+The user ships apps fast with AI builders (Claude Code, Cursor, Lovable, v0, Bolt, Replit)
+and is strong at *building* but rarely runs disciplined market validation. Their failure
+mode is confidently building something nobody wants. The jobs LaunchThesis does for them:
+
+- **Confidence on what to build** — a crisp GO with a market-backed spec, not a vibe.
+- **Confidence on what *not* to build** — a cheap, evidence-backed NO-GO is a first-class
+  win, not a failure. Killing a dead idea in a day *is* the product working.
+- **Meet them where they build** — the payoff of a PASS is an **AI-builder-ready build
+  brief**: the validated wedge, exactly what the converting page sold (scope + price +
+  first-access promise), and acceptance criteria, formatted to paste straight into their
+  builder. A NO-GO returns the disconfirming evidence + the cheapest adjacent wedge to try.
+
+This audience *sharpens* two existing choices rather than fighting them:
+- The "**you build the page**" step (validate V2) is light here — a vibe coder can vibe-code
+  a landing page in minutes — so the honesty floor (a real, human-built converting page)
+  costs them little. Keep it.
+- The cheap-kill funnel maps directly to "what not to build." Lead with it.
+
+What it must *not* do for this audience: soften the signal to feel good. Confidence is worth
+nothing if the gate isn't real, so the honesty floor and "builder is not the scorer" stay
+non-negotiable (see *Friction calibration*).
 
 ## The loop
 
@@ -217,6 +248,75 @@ modules:
    `audit → strategy`.
 7. Green `scripts/lint.sh --complete` + `scripts/test.sh` on the branch.
 
+## Distribution-agnostic architecture (SaaS or plugin)
+
+Distribution is undecided — Claude Code plugin today, possibly a hosted SaaS later. To keep
+that choice cheap and deferred, the scope separates a **portable core** from
+**distribution adapters**. The rule: *the core never imports anything distribution-specific;
+everything that differs hides behind an adapter interface.* Hold that line now and the
+SaaS-vs-plugin decision never forces a fork.
+
+### Three layers
+
+1. **Methodology (portable content).** The loop's prose — gate definitions, rubrics,
+   red-team personas, the guerrilla playbook, the conversion rubric, the honesty floor, the
+   wedge state machine. Runtime-agnostic instruction text; identical in both distributions.
+   *Action now:* keep the method free of hard Claude-Code couplings — isolate
+   `${CLAUDE_PLUGIN_ROOT}` paths and the Agent/Explore/Workflow orchestration into clearly
+   marked "runtime binding" notes, so a SaaS agent runtime can substitute its own
+   orchestration. Separate *what the step does* from *how the runtime executes it*.
+2. **Deterministic core (portable code).** The un-gameable scoring — `gate-eval` / `gate-run`
+   (predicate building, lands derivation, cohort weighting). Pure, framework-free functions:
+   data in, verdict out. This is what guarantees "builder is not the scorer" in *both* worlds
+   — in the plugin it runs via node, in SaaS it's a server-side scoring endpoint, same code.
+   *Action now:* keep `evaluateGate` / `buildPredicates` free of file-path/CLI assumptions;
+   the CLI wrapper stays a thin plugin adapter over them.
+3. **Adapters (distribution-specific).** Everything that differs:
+
+| Concern | Plugin adapter | SaaS adapter |
+|---|---|---|
+| **Orchestration** | Claude Code skills + Agent/Explore/Workflow | agent loop on the Anthropic API w/ tool-use |
+| **Persistence / state** | files (`.launchthesis/config.yaml`, sprint-state, `studio/*.md`) | DB rows (projects, theses, wedge-versions, sprints, playbook) — **same schema** |
+| **Connectors** (deploy / data / payments) | the user's declared MCP connectors, user-owned keys | managed infra or OAuth, platform-owned |
+| **Identity / tenancy** | single local user | accounts, multi-tenant, billing |
+| **Studio playbook scope** | local, per-user priors | optionally **cross-user, anonymized** priors → network effect / data moat |
+
+### What this buys
+
+- The decision is **deferred at near-zero cost**: ship the plugin now (core + plugin
+  adapters); add SaaS later by writing SaaS adapters against the same core + schema.
+- The **deterministic core is already SaaS-ready** — the `.mjs` evaluators are pure libraries
+  today. That is the crown jewel of portability and the reason the honesty floor ports for free.
+- The one feature that genuinely *wants* SaaS — a **cross-user anonymized playbook** (every
+  user's validation outcomes compounding into shared priors, a real moat) — is purely an
+  adapter-level upgrade; the core loop doesn't change to gain it.
+
+### To stay forkless, do this now (folds into the implementation order)
+
+- Define the **project / thesis / wedge / sprint data schema** explicitly (today it's implicit
+  in the YAML templates) so it maps cleanly to either YAML files or DB tables. The
+  versioned-wedge object is the template for this.
+- Express the three connector needs as a small **capability interface** —
+  `deploy.publish(html) → url`, `data.insert(row)` / `data.query(window) → rows`,
+  `payments.createHold(amount) → proof` — so a managed SaaS provider can satisfy the same
+  contract the MCP connectors do today.
+- Mark every Claude-Code-specific reference in the skills as a runtime binding, not method.
+
+## Friction calibration for vibe coders
+
+The tension: vibe coders want fast + cheap; real confidence needs a real signal. Resolve it
+by **keeping the floor and cutting the friction around it** — never by lowering the floor.
+
+- **Non-negotiable (the signal):** real cold-stranger exposure, ≥1 cold hard pay-proof in
+  LIVE mode, "builder is not the scorer" recompute. These *are* the confidence; soften them
+  and the tool is a horoscope.
+- **Cut everywhere else (the friction):** lean on the audience's strength — they build fast.
+  A templated, vibe-code-ready landing scaffold; guided DM/post drafting; planner-mode
+  fallbacks when a connector is missing; and in SaaS, managed deploy + a managed Stripe hold
+  so the only things the user supplies are the offer and the audience.
+- **Always emit a verdict, never a vibe.** Every loop ends in **GO / NO-GO / ITERATE** with
+  the evidence and a confidence read — that crispness is the product for this audience.
+
 ## Non-goals
 
 - Owning the build, tests, CI, or ticketing after PASS (that is the founder's downstream choice).
@@ -228,3 +328,9 @@ modules:
 - Whether `studio.max_concept_cycles` should count wedge re-cuts separately from offer/channel
   iterations (leaning: a re-cut is the expensive cycle and should be the thing that's bounded).
 - Final copy for the README tagline and the `plugin.json` description.
+- Plugin-first vs SaaS-first sequencing. The architecture supports either; plugin is
+  lowest-friction for the Claude-Code-native slice of vibe coders, SaaS unlocks the
+  cross-user playbook moat and reaches vibe coders on non-CC builders (Lovable, v0, Bolt).
+- Whether to track **post-launch outcome** (did a validated thesis actually launch + retain
+  payers?) to prove the tool's own success metric — richer in SaaS (longitudinal cohorts)
+  than plugin (a local log line).
