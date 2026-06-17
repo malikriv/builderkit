@@ -238,15 +238,19 @@ modules:
 
 ## Implementation order (when we proceed)
 
-1. Slim `config.template.yaml` + rewrite `scripts/lint.sh` manifest and `scripts/test.sh`.
-2. Rewrite README + `plugin.json` + `marketplace.json` around the LaunchThesis loop.
-3. Reframe skills: `product-strategy` (→ strategy), `validate` (handoff + wedge-refuted path),
+1. Write the **portable data-schema reference** (entities + persistence mapping + the PII /
+   determinism invariants) — the contract every adapter implements.
+2. Slim `config.template.yaml` + rewrite `scripts/lint.sh` manifest and `scripts/test.sh`.
+3. Rewrite README + `plugin.json` + `marketplace.json` around the LaunchThesis loop.
+4. Reframe skills: `product-strategy` (→ strategy), `validate` (handoff + wedge-refuted path),
    `discover` (versioned wedge); rename the brief template + add the `## Wedge` section.
-4. Add the wedge-patterns ledger to `templates/studio/playbook.md`.
-5. Delete the execution modules (commands/skills/templates listed under REMOVE).
-6. Namespace rename `/builderkit:* → /launchthesis:*`, `.builderkit/ → .launchthesis/`,
+5. Add the **AI-builder handoff template** (`templates/validate/handoff.md` + its structured
+   data block; retain the `sold-scope` shape as that block) and wire validate V4 to emit it on GO.
+6. Add the wedge-patterns ledger to `templates/studio/playbook.md`.
+7. Delete the execution modules (commands/skills/templates listed under REMOVE).
+8. Namespace rename `/builderkit:* → /launchthesis:*`, `.builderkit/ → .launchthesis/`,
    `audit → strategy`.
-7. Green `scripts/lint.sh --complete` + `scripts/test.sh` on the branch.
+9. Green `scripts/lint.sh --complete` + `scripts/test.sh` on the branch.
 
 ## Distribution-agnostic architecture (SaaS or plugin)
 
@@ -301,6 +305,80 @@ SaaS-vs-plugin decision never forces a fork.
   `payments.createHold(amount) → proof` — so a managed SaaS provider can satisfy the same
   contract the MCP connectors do today.
 - Mark every Claude-Code-specific reference in the skills as a runtime binding, not method.
+
+## The portable data schema (one shape, two stores)
+
+The "same schema, two stores" promise needs the schema written down. These entities are
+persistence-agnostic: in the plugin each maps to a file (YAML/Markdown), in SaaS each maps to a
+table. Two invariants cut across all of them:
+
+- **PII boundary.** `event` rows carry contact PII and are *project-scoped* — they never flow
+  to the cross-project playbook. Only PII-stripped aggregates are eligible to be shared.
+- **Determinism boundary.** `verdict` is always *recomputed* from `event` rows by the
+  deterministic core; it is never authored or edited. Same rule in both stores.
+
+| Entity | Key fields | Plugin file | SaaS table |
+|---|---|---|---|
+| **project** | id, name, positioning (current wedge mirror), exit_strategy, sensitive_category, surfaces[] | `.launchthesis/config.yaml` | `projects` (+ user_id) |
+| **thesis** | id, project_id, slug, statement, icp, archetype, why_now, alternatives[], status | `…-launch-thesis.md` | `theses` |
+| **wedge** | thesis_id, version, statement, status (candidate→named→validated/refuted), refuted_by | `## Wedge` table in the thesis doc (+ positioning mirror) | `wedge_versions` |
+| **strategy** | id, thesis_id, plays[]{name, surface, tier, metric, decline?}, primary_channel | `…-strategy.md` | `strategies` + `plays` |
+| **sprint** | id, thesis_id, wedge_version, window_{start,end}, connectors{}, channels_posted[], last_event_cursor, tier_counts{}, predicates_hash, status | `studio/sprints/<slug>.yaml` | `sprints` |
+| **event** *(PII)* | id, sprint_id, ts, type, cohort, live, amount, session, src, contact, is_founder | the project's `validate.data` store | `events` (tenant-scoped) |
+| **verdict** | sprint_id, outcome (GO\|NO-GO\|ITERATE\|NOT-MEASURABLE), lands, cold_weight_fraction, hard_pay_proofs, confidence, recommended_action | captured in `…-validation.md` | `verdicts` |
+| **handoff** | thesis_id, sprint_id, validated_wedge, sold_scope{}, icp, winning_channels[], declined_plays[], metrics[], out_of_scope[], build_prompt | `…-handoff.md` (+ data block) | `handoffs` |
+| **playbook_entry** *(no PII)* | scope (local\|cross_user), kind, pattern, icp_type, status, runs, cold_land_to_pay_rate | `studio/playbook.md` | `playbook_entries` |
+
+Relationships: `project 1—* thesis 1—* wedge`; `thesis 1—* sprint 1—* event`; `sprint 1—1
+verdict`; a GO `verdict 1—1 handoff`; `playbook_entry` aggregates across theses/projects.
+
+Why this matters for distribution:
+- The **cross-user playbook moat** is exactly the `playbook_entry` rows with `scope: cross_user`
+  — safe to share because the PII boundary keeps `event` rows out. In SaaS a pattern is promoted
+  to `cross_user` only after it clears a k-anonymity threshold (≥ K distinct projects), so no
+  single user's data is identifiable.
+- The **verdict's `recommended_action`** is the loop's router — `handoff` (GO),
+  `re-channel` / `copy-variant` (ITERATE), `wedge-recut` (back to Research), or `kill`. One
+  field drives the whole loop in either runtime.
+
+## The handoff: an AI-builder-ready build brief
+
+Only emitted on a GO — the product's payoff for a vibe coder, the artifact they paste into
+their builder. Two faces: a human-readable brief and a paste-ready build prompt generated from
+it. Six blocks:
+
+1. **Verdict + confidence** — GO, the gate counts (lands, cold pay-proofs, cold-weight
+   fraction), and a `low|medium|high` confidence read derived from sample size + cohort quality
+   + measurability. No vibe — the numbers that earned the GO.
+2. **The validated thesis** — the one-liner + the validated wedge (version + statement).
+3. **Build this (sold scope)** — one entry per deliverable the *converting page actually
+   promised payers*, each with acceptance criteria; the price; paid-cohort count; the
+   first-access deadline. (This is the retained `sold-scope` shape — now guidance, not a
+   scope-guard contract.)
+4. **Do NOT build this** — the signature block. Unvalidated extras + the **declined plays** from
+   the brand-safety audit (guardrails the build must respect). This is the "what not to build"
+   the whole product promises.
+5. **Who + how to reach them** — the ICP and the *channels that actually converted*, so the
+   launch GTM isn't re-guessed from scratch.
+6. **Instrument these** — the metric→play wiring so the app is measurable from day one (seeds
+   the post-launch loop).
+
+**Build prompt (generated from blocks 2–6):** a single paste-ready block —
+
+```
+Build a [stack] app for [ICP] that [validated wedge].
+Scope (the market paid for exactly this):
+  - <deliverable> — acceptance: <criteria>
+  …
+Do NOT build: <unvalidated extras>. Must respect: <declined plays>.
+Reach users via: <winning channels>. Wire analytics for: <metrics>.
+First access promised by: <deadline>.
+```
+
+Format: `templates/validate/handoff.md` (prose) with the structured data as a fenced block —
+so the plugin writes a file the vibe coder pastes, and a SaaS build can serve the same object
+via an export endpoint or a one-click "send to builder" integration. The same six blocks, two
+surfaces.
 
 ## Friction calibration for vibe coders
 
