@@ -26,8 +26,9 @@ every path written plus the next command. Gloss any first-use jargon from
 
 ## Step 1 — Detect (light)
 
-Read what's cheaply available to fill the slim config — no testing-driver,
-maestro, playwright, or Linear detection.
+Read what's cheaply available to fill the slim config — no build, test-runner,
+or ticketing detection. LaunchThesis stops at validated demand; it never owns the
+build, the tests, or the tickets.
 
 - **Project name** — from `package.json` `name`, the repo directory, or ask.
 - **Stack (optional)** — a light read of `package.json`/lockfiles/layout if an
@@ -49,8 +50,8 @@ showing a diff first.
 
 The slim config carries only `project`, `docs`, `product`, `discover`,
 `validate`, `studio`, and `modules` (`modules` is just
-`discover / product / validate / studio`). There is no `commands:`, `testing:`,
-`linear:`, or `delivery:` block.
+`discover / product / validate / studio`). There is no `commands:` block and no
+build, test, or delivery config — that execution scope is deliberately out of scope.
 
 ## Step 3 — Provision studio + product
 

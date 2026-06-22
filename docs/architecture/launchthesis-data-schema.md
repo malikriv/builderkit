@@ -477,7 +477,7 @@ Accurate to the implemented refocus — the schema deliberately stops at proven 
 
 - No `ship` / delivery / build-DAG / scope-guard entities. `handoff.sold_scope` is the
   retained "what was sold" shape, but it is **guidance**, not a binding build contract.
-- No e2e / test-orchestration entities.
-- No Linear / ticketing / journaling entities.
+- No test-orchestration entities.
+- No ticketing / journaling entities.
 - No auto-posting or auto-launching state — the founder still posts the links and builds
   the page; the schema records what happened, it does not act.
