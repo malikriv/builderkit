@@ -32,6 +32,12 @@ point the user at /launchthesis:setup. The project's CLAUDE.md overrides this sk
 - **Serial by default** (`validate.max_concurrent_sprints`): refuse a 2nd open sprint.
 - **Report honestly.** If a gate could not run (no connector, no traffic), say so in the
   report — never imply a check happened when it didn't.
+- **Communicate** per `${CLAUDE_PLUGIN_ROOT}/skills/shared/communication.md`: emit a
+  `Validate · V<n>/4` breadcrumb as you enter each phase, gloss first-use jargon (Gate V,
+  cold-weight fraction, pay-proof, abandoned_at) from
+  `${CLAUDE_PLUGIN_ROOT}/skills/shared/glossary.md`, and end with the Gate V scorecard + the
+  signpost footer. The scorecard is a faithful render of the verbatim `gate-eval.mjs` output
+  — never a substitute for the recompute (C6).
 
 ## V0 — Instrument + freeze the gate
 Classify archetype -> set the window (`validate.window_hours`; marketplace/considered
@@ -140,6 +146,11 @@ qualified impressions; if you can't count them, treat the run as NOT-MEASURABLE.
   instrumentation (bounded by `validate.gate.max_repair_attempts`); on exhaustion,
   degrade to a human-judged manual count from the raw evidence.
 
+**Render the Gate V scorecard** (communication §4) from the `gate-eval.mjs` output — verdict,
+counted/weighted users, cold-weight fraction, friend share, cold hard pay-proof, fail
+attribution (FAIL only), and `abandoned_at` — in the terminal, alongside the V4 report. It
+mirrors the gate-eval output exactly; never hand-author it.
+
 ## V4 — Validation Report + AI-builder handoff
 Write `<docs.specs_dir>/YYYY-MM-DD-<slug>-validation.md` from
 `${CLAUDE_PLUGIN_ROOT}/templates/validate/validation-report.md`: the funnel per
@@ -164,6 +175,14 @@ kit stops at proven demand. The first-access window uses
 On the PASS, also set the wedge `status: validated` in the discover Launch Thesis brief
 (the versioned wedge object lives in `<docs.specs_dir>/…-launch-thesis.md`); note the
 update in the report.
+
+**Close the run** (communication §2): after the scorecard, print the signpost footer — echo
+the validation-report path (`<docs.specs_dir>/YYYY-MM-DD-<slug>-validation.md`) and, on a
+PASS, the handoff path (`…-handoff.md`) plus the studio-log row — then name the single next
+action: on **PASS** `→ paste the handoff's build prompt into your AI builder`; on
+**INCONCLUSIVE** `→ /launchthesis:validate` (extend / re-channel); on **FAIL** `copy_weak`
+`→ /launchthesis:validate` (run a variant) or `wedge_refuted` `→ /launchthesis:discover`
+(re-cut the wedge).
 
 ## Studio loop
 Read `.launchthesis/studio/playbook.md` as priors (advisory; never gate). Write one

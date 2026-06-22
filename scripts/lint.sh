@@ -42,6 +42,10 @@ if [ "${1:-}" = "--complete" ]; then
     commands/discover.md \
     commands/strategy.md \
     commands/validate.md \
+    commands/status.md \
+    skills/shared/communication.md \
+    skills/shared/glossary.md \
+    skills/status/SKILL.md \
     skills/studio-setup/SKILL.md \
     skills/discover/SKILL.md \
     skills/discover/references/red-team-personas.md \

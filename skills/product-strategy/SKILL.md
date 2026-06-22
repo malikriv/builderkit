@@ -47,6 +47,10 @@ keeps OUTSIDE the plugin; the engine runs fully without it.
 - **Exit-aligned.** Names, claims, and plays must be safe for `product.exit_strategy`.
 - **Write it down.** The strategy lands as a doc in `docs.specs_dir`; `/launchthesis:validate`
   reads docs, not chat.
+- **Communicate** per `${CLAUDE_PLUGIN_ROOT}/skills/shared/communication.md`: emit a
+  `Strategy · B<n>` breadcrumb as you enter each step, gloss first-use jargon from
+  `${CLAUDE_PLUGIN_ROOT}/skills/shared/glossary.md`, and end with the signpost footer (the
+  strategy-doc path + the next command, `→ /launchthesis:validate`).
 
 ## Input
 
@@ -89,6 +93,10 @@ B2 surface maps → B4 brand-safety flags → priority sequence → B6 metric wi
 
 The strategy's growth/landing plays + the discover wedge feed `/launchthesis:validate`'s
 conversion asset + GTM; the declined plays from B4 become the sprint's brand-safety guardrails.
+
+**Close the run** (communication §2): print the signpost footer — echo the strategy-doc path
+(`<docs.specs_dir>/<slug>-strategy.md`), note the declined plays carried forward as
+guardrails, and name the single next command: `→ /launchthesis:validate`.
 
 ### Insight Loop (metric-first; the closing loop)
 When a live loop isn't moving, or to make a strategy measurable: pick ONE metric → read that

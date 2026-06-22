@@ -177,6 +177,10 @@ instead so every clone picks it up automatically:
    verdict from raw cold-pay receipts. On a GO, paste the handoff's build prompt into
    your AI builder.
 
+Lost at any point? Run `/launchthesis:status` for a read-only "you are here" — the stages
+you've finished, your current wedge, where every file landed, and the one command to run
+next.
+
 ## Commands
 
 | Command | What it does |
@@ -185,6 +189,10 @@ instead so every clone picks it up automatically:
 | `/launchthesis:discover <seed>` | Refine + Research: frame → triage (can NO-GO fast) → demand pulse → red-team hardening → versioned **Launch Thesis** + named wedge. |
 | `/launchthesis:strategy [scope]` | GTM + conversion strategy that arms the sprint: weight families → map/tier plays → flag declined plays → wire metrics. Not a build planner. |
 | `/launchthesis:validate [brief\|poll\|report]` | 48h guerrilla sprint: freeze Gate V → GTM → conversion brief (you build the page) → launch → recompute the verdict from raw rows. On GO, emit the AI-builder handoff. |
+| `/launchthesis:status [slug]` | Read-only "you are here": completed stages, the current wedge, your latest artifacts + their paths, any open sprint, and the one command to run next. |
+
+New to the vocabulary — *wedge, pulse, Gate D/V, cold-weight fraction, pay-proof*? See the
+[glossary](skills/shared/glossary.md).
 
 ## Configuration
 

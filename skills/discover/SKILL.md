@@ -38,6 +38,10 @@ overrides this skill where they conflict.
 - **Optimize decision quality, not kills.** For a near-broke solo founder the worst
   outcome is killing a winner on simulation; the real kill is the market's.
 - **Write it down.** Tier verdicts, the pulse evidence, and the brief go in docs.
+- **Communicate** per `${CLAUDE_PLUGIN_ROOT}/skills/shared/communication.md`: emit a
+  `Discover · D<n>/4` breadcrumb as you enter each tier, gloss first-use jargon (wedge,
+  pulse, Gate D) from `${CLAUDE_PLUGIN_ROOT}/skills/shared/glossary.md`, and end the run with
+  the Gate D scorecard + the signpost footer (path echoes + the next command).
 
 ## D0 — Frame (cheap)
 
@@ -129,6 +133,13 @@ check, the D2 pulse evidence, and a light **intended-surfaces sketch** so
 `/launchthesis:strategy` can map plays onto it. This brief is the source of truth for the
 wedge; it feeds `/launchthesis:strategy` (GTM + conversion plays) → `/launchthesis:validate`
 (real cold-pay-proof sprint).
+
+**Close the run** (communication §4 then §2): render the **Gate D scorecard** — the verdict,
+the named wedge (statement + version + status), the intensity read, pulse, and WTP /
+reachability — then the **signpost footer** echoing the brief path
+(`<docs.specs_dir>/YYYY-MM-DD-<slug>-launch-thesis.md`) and the studio-log row, and naming
+the single next command: `→ /launchthesis:strategy` on a GO, or `→ /launchthesis:discover
+<new seed>` on a recorded NO-GO.
 
 ## Studio loop
 

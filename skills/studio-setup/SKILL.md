@@ -19,6 +19,11 @@ template, and provision the studio store + the `product:` block. The flow is
 Idea-stage is the normal case here — LaunchThesis forms and proves a launch
 thesis *before* there's an app. Setup does not require a buildable project.
 
+**Communicate** per `${CLAUDE_PLUGIN_ROOT}/skills/shared/communication.md` — one voice, a
+`Setup · step n/3` breadcrumb as you enter each step, and a signpost footer that echoes
+every path written plus the next command. Gloss any first-use jargon from
+`${CLAUDE_PLUGIN_ROOT}/skills/shared/glossary.md`.
+
 ## Step 1 — Detect (light)
 
 Read what's cheaply available to fill the slim config — no testing-driver,
@@ -84,10 +89,21 @@ Stand up the cross-product studio store and capture the `product:` block.
   - Adapt the handler signature to the project's framework if it isn't
     Vercel/Node.
 
-## End
+## End — orient the founder
 
-When the config is written and the studio store is provisioned, tell the
-founder: **setup is done — run `/launchthesis:discover <seed>` next.**
+When the config is written and the studio store is provisioned:
+
+1. **Render the loop orientation** from
+   `${CLAUDE_PLUGIN_ROOT}/skills/shared/communication.md` §6 — the "you are here" map of
+   Refine → Research → Strategy → Validate, what each pass produces, and that a cheap NO-GO
+   is a win. This is the founder's first-run onboarding: show the full map on a fresh setup;
+   on an idempotent re-run, skip the map and print only the footer.
+2. **Print the signpost footer** (communication §2), echoing the real paths written:
+   - `.launchthesis/config.yaml` (plus any infra routes copied, with their project paths)
+   - `.launchthesis/studio/playbook.md` and `.launchthesis/studio/validation-log.md`
+   - `Next: /launchthesis:discover <seed>`
+
+End on the plain line: **setup is done — run `/launchthesis:discover <seed>` next.**
 
 ## Drift repair
 
