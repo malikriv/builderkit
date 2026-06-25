@@ -1,0 +1,88 @@
+# LaunchThesis per-project config — written by /launchthesis:setup, read by every
+# launchthesis skill at start. Repo CLAUDE.md overrides this file where they conflict.
+config_version: 1
+
+project:
+  name: validation-page-builder   # working name for the concept under test (final name TBD — see brief)
+  stack: ""                       # idea-stage: the page template exists, the SaaS product does not
+
+docs:
+  specs_dir: docs/specs           # spec docs home
+  design_dirs: []                 # optional: where design references live
+
+product:                          # read by discover (frame/exit/positioning) + strategy
+  positioning: "An indie-priced, throwaway demand-validation page: capture + a refundable
+    pre-auth willingness-to-pay probe + an honest GO/NO-GO read, run for a week and deleted."
+                                  # CANDIDATE wedge one-liner — promoted/replaced by discover D3
+  exit_strategy: none             # natural future acquirers: AI-builder platforms / waitlist tools
+  sensitive_category: false       # not health/finance/self-image/minors
+  surfaces: []                    # optional: screens the strategy step maps plays onto
+  playbook_ref: ""                # OPTIONAL override only — engine is self-sufficient; leave empty
+
+modules:
+  discover: true                  # refine + research (idea → named, hardened wedge)
+  product: true                   # strategy: GTM + conversion plays
+  validate: true                  # 48h cold-pay-proof guerrilla sprint
+  studio: true                    # cross-product playbook
+
+# ── discover module (idea → hardened launch thesis) ──
+discover:
+  red_team:
+    personas: 6
+    max_rounds: 3
+    kill_threshold: evidence_gated   # evidence_gated | majority | any | unanimous
+  reality_probe: { enabled: true, window_hours: 24, min_contacts_drafted: 10 }
+  specs_dir: docs/specs
+
+# ── validate module (48h live sprint + guerrilla GTM) ──
+validate:
+  window_hours: 48
+  max_window_hours: 96
+  budget_cap_usd: 50
+  clock_start: first_qualified_impression
+  sprints_dir: .launchthesis/studio/sprints
+  max_concurrent_sprints: 1
+  auto_post: false
+  gate:
+    floor_users: 10
+    min_qualified_lands: 25
+    min_lp_visit_to_signup_rate: 0.05
+    rate_min_sample_visits: 40
+    require_pay_proof: true
+    hard_signal_default: paid
+    allow_brief_override: true
+    weights: { payment: 5, loi: 5, scarce_action: 3, activation: 2, signup: 1, intent_click: 0 }
+    cohort_weights: { cold_public: 1.0, warm_dm: 0.5, friend: 0.25, unverifiable: 0 }
+    min_cold_weight_fraction: 0.6
+    max_friend_share: 0.4
+    exclude_self: true
+    founder_identifiers: []
+    pay_proof:
+      mode_default: preauth_hold
+      captured: false
+      refundable: false
+      min_pct_of_price: 25
+      cold_required: true
+      live_mode_only: true
+    max_extensions: 1
+    max_repair_attempts: 3
+    message_variants_before_kickback: 2
+    kill_attribution: { min_qualified_lands: 30 }
+  handoff: { max_days_to_first_access: 30 }
+  gtm:
+    named_list_target: 30
+    min_warm_channels: 1
+    default_channel_order: [direct_outreach, intent_venues, borrowed_distribution, broadcast]
+  deploy:   { provider: "", project: "" }   # idea-stage → planner-mode (would be Vercel for the real sprint)
+  data:     { provider: "", project: "" }   # → planner-mode (would be Supabase)
+  payments: { provider: "", mode: preauth_hold }  # → planner-mode (would be Stripe LIVE)
+  max_rounds: 3
+
+# ── studio (cross-product learning loop) ──
+studio:
+  enabled: true
+  dir: .launchthesis/studio
+  success_criterion: ">=N retained paying users 30 days after launch"
+  promote_after_k: 2
+  max_concept_cycles: 3
+  max_wedge_recuts: 2
